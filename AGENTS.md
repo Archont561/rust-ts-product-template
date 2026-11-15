@@ -39,8 +39,6 @@ pixi run -e default bun install --frozen-lockfile # Bootstrap Bun dependencies
 pixi run tools run install                 # Re-run Bun dependency installation after bootstrap
 pixi run tools run hooks                   # Install lefthook pre-commit & pre-push Git hooks
 pixi run tools run hooks --action validate # Validate lefthook.yml syntax
-pixi run tools run sandbox --action check  # Verify pixi-sandbox generated workflows & scripts/restore.sh
-pixi run tools run sandbox --action plan   # Preview offline pixi-sandbox publish matrix
 pixi run tools run --each typecheck        # Type-check all 13 workspace packages via Tasknest 0.4
 pixi run tools run lint-repo               # alint (presets, 18 JSON Schemas, architectural boundaries)
 pixi run tools run test-policy             # alint test .alint/tests + live real-schema regression checks

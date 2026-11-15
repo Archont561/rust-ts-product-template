@@ -34,10 +34,6 @@ pre-commit:
       glob: "{templates/**,README.md,AGENTS.md,.github/ISSUE_TEMPLATE/**,.github/PULL_REQUEST_TEMPLATE.md,.alint/schemas/**,.alint/tests/**,package.json,Cargo.toml}"
       run: pixi run tools run docs-sync
 
-    - name: pixi-sandbox-sync
-      glob: "{pixi-sandbox.toml,scripts/restore.sh,.github/workflows/publish-sandbox.yml,.github/workflows/relock.yml}"
-      run: pixi run tools run sandbox --action check
-
     - name: lint-gherkin
       glob: "**/*.feature"
       run: pixi run tools run lint-gherkin

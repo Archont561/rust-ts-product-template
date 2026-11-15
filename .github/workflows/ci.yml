@@ -30,13 +30,11 @@ jobs:
         with:
           environment: default
 
-      - name: Validate Tasknest graph, generated skill, docs templates & pixi-sandbox files
+      - name: Validate Tasknest graph, generated skill & docs templates
         run: |
           pixi run tools check
           pixi run tools skill --check
           pixi run tools run docs-sync
-          pixi run tools run sandbox --action check
-          pixi run tools run sandbox --action plan
 
       - name: Run repository policies, schemas & boundary checks (alint)
         run: pixi run tools run lint-repo
