@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/root-package.schema.json",
+  "title": "Root Bun Workspace package.json Policy",
+  "description": "Enforces that the repository root package.json stays private ESM, declares workspaces, carries no runtime dependencies, and defines no root scripts (all repo automation must run via `pixi run tools`).",
+  "type": "object",
+  "required": ["name", "version", "private", "type", "workspaces", "devDependencies"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$"
+    },
+    "private": {
+      "const": true
+    },
+    "type": {
+      "const": "module"
+    },
+    "workspaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "contains": {
+        "const": "packages/*"
+      }
+    },
+    "scripts": false,
+    "dependencies": false,
+    "devDependencies": {
+      "type": "object",
+      "required": ["@archont561/tasknest", "@biomejs/biome", "typescript"],
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

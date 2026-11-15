@@ -1,0 +1,33 @@
+name: "Setup Pixi & Bun Workspace"
+description: "Install a locked Pixi environment and bootstrap Bun workspace dependencies through `pixi run tools`."
+
+inputs:
+  environment:
+    description: "Pixi environment name to install (default, js, lint, docs, rust, full)."
+    required: false
+    default: "default"
+  install-bun:
+    description: "Whether to run `pixi run -e <env> tools run install` after Pixi setup."
+    required: false
+    default: "true"
+  pixi-version:
+    description: "Pinned Pixi CLI version."
+    required: false
+    default: "v0.84.2"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Pixi environment
+      uses: prefix-dev/setup-pixi@9936258fee697aff89b3fed6ca1f80a382ef694e # v0.11.3
+      with:
+        pixi-version: ${{ inputs.pixi-version }}
+        environments: ${{ inputs.environment }}
+        locked: true
+        cache: true
+        cache-write: ${{ github.ref == 'refs/heads/main' || github.event_name == 'push' }}
+
+    - name: Install Bun workspace dependencies
+      if: ${{ inputs.install-bun == 'true' }}
+      shell: bash
+      run: pixi run -e "${{ inputs.environment }}" tools run install

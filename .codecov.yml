@@ -1,0 +1,55 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  status:
+    project:
+      rust:
+        flags: [rust]
+        target: auto
+        threshold: 1%
+      typescript:
+        flags: [ts]
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: 80%
+        threshold: 1%
+
+flags:
+  rust:
+    paths:
+      - rust/crates/
+      - rust/adapters/
+      - apps/web/src/
+    carryforward: true
+  ts:
+    paths:
+      - packages/
+      - apps/desktop/
+      - apps/mobile/
+      - apps/extension/
+      - apps/worker/
+    carryforward: true
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/generated/**"
+  - "**/*.gen.ts"
+  - "**/tests/**"
+  - "**/stories/**"
+  - "**/*.stories.svelte"
+  - "**/*.feature"
+  - "apps/docs/**"
+  - "backlog/**"
+  - "tools/**"

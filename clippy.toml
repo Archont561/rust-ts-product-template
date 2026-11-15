@@ -1,0 +1,19 @@
+# Workspace Clippy policy
+# Keep tests ergonomic while production code stays panic-free and deterministic.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-indexing-slicing-in-tests = true
+allow-dbg-in-tests = true
+doc-valid-idents = ["OpenAPI", "SQLite", "WebSocket", "WebAssembly", "TypeScript", "JavaScript", "Fumadocs", ".."]
+
+disallowed-methods = [
+  { path = "std::time::SystemTime::now", reason = "Inject a Clock trait so core crates stay deterministic and testable" },
+  { path = "std::time::Instant::now", reason = "Panics on wasm32-unknown-unknown; inject a Clock trait" },
+  { path = "std::env::var", reason = "Read environment configuration at app composition roots (apps/*)" },
+]
+
+disallowed-macros = [
+  { path = "std::println", reason = "Use tracing::* instead of stdout printing" },
+  { path = "std::eprintln", reason = "Use tracing::* instead of stderr printing" },
+  { path = "std::dbg", reason = "Do not commit debug macros" },
+]

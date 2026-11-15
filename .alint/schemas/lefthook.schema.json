@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/lefthook.schema.json",
+  "title": "Lefthook Git Hooks Policy",
+  "description": "Enforces pre-commit and pre-push hook groups in lefthook.yml where every hook job delegates through `pixi run [-e <env>] tools`.",
+  "type": "object",
+  "required": ["pre-commit", "pre-push"],
+  "properties": {
+    "pre-commit": {
+      "$ref": "#/$defs/hookStage"
+    },
+    "pre-push": {
+      "$ref": "#/$defs/hookStage"
+    },
+    "commit-msg": {
+      "$ref": "#/$defs/hookStage"
+    }
+  },
+  "$defs": {
+    "hookStage": {
+      "type": "object",
+      "required": ["jobs"],
+      "properties": {
+        "parallel": { "type": "boolean" },
+        "piped": { "type": "boolean" },
+        "jobs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/hookJob" }
+        }
+      }
+    },
+    "hookJob": {
+      "type": "object",
+      "required": ["name"],
+      "oneOf": [
+        {
+          "required": ["run"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "glob": { "type": "string", "minLength": 1 },
+            "run": {
+              "type": "string",
+              "pattern": "^pixi run (-e [a-z]+ )?tools\\b"
+            }
+          }
+        },
+        {
+          "required": ["group"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "glob": { "type": "string", "minLength": 1 },
+            "group": {
+              "type": "object",
+              "required": ["jobs"],
+              "properties": {
+                "parallel": { "type": "boolean" },
+                "piped": { "type": "boolean" },
+                "jobs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "$ref": "#/$defs/hookJob" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

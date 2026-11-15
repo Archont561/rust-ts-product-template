@@ -1,0 +1,88 @@
+# Workspace configuration for Tasknest 0.4.0.
+# All repository & coding-agent automation runs through `pixi run tools ...`.
+[tasknest]
+config_version = 1
+
+[discovery]
+workspaces = false
+
+[[discovery.roots]]
+path = "tools"
+namespace = ""
+project_root = "."
+
+[[discovery.roots]]
+path = "apps/web/tools"
+namespace = "web"
+project_root = "apps/web"
+
+[[discovery.roots]]
+path = "apps/desktop/tools"
+namespace = "desktop"
+project_root = "apps/desktop"
+
+[[discovery.roots]]
+path = "apps/mobile/tools"
+namespace = "mobile"
+project_root = "apps/mobile"
+
+[[discovery.roots]]
+path = "apps/extension/tools"
+namespace = "ext"
+project_root = "apps/extension"
+
+[[discovery.roots]]
+path = "apps/docs/tools"
+namespace = "docs"
+project_root = "apps/docs"
+
+[[discovery.roots]]
+path = "apps/worker/tools"
+namespace = "worker"
+project_root = "apps/worker"
+
+# Manifest-backed package scripts (enables `pixi run tools run --each typecheck`,
+# `pixi run tools run -p pkg.contracts test`, etc.)
+[[discovery.manifests]]
+path = "packages/*"
+namespace = "pkg"
+runner = "bun"
+
+[[discovery.manifests]]
+path = "packages/frontend/*"
+namespace = "pkg"
+runner = "bun"
+
+[[discovery.manifests]]
+path = "packages/infrastructure/*"
+namespace = "pkg.infra"
+runner = "bun"
+
+[checks]
+strict = true
+require_description = true
+require_tests = false
+require_features = false
+unknown_marks = "error"
+
+[marks]
+fast = "Fast local check suitable for tight feedback loops"
+offline = "Runs fully offline without network access"
+lint = "Static analysis, formatting, schema, or boundary verification"
+test = "Automated unit or integration test suite"
+rust = "Requires the Pixi `rust` environment (`pixi run -e rust tools ...`)"
+security = "Supply-chain license, ban, or vulnerability advisory audit"
+docs = "Documentation prose or site verification"
+setup = "Workspace dependency bootstrap or installation"
+workflow = "Backlog, agent skill, or developer workflow utility"
+dev = "Long-running development server or watcher"
+build = "Compile or package deployable artifacts"
+release = "Packaging or deployment workflow for staging/production"
+codegen = "Generated contract, OpenAPI, or artifact emitter"
+
+[execution]
+jobs = 1
+
+[skill]
+output = ".agents/skills/project-tools/SKILL.md"
+command = "pixi run tools"

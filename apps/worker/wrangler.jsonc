@@ -1,0 +1,50 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "product-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  // Non-sensitive runtime configuration; store DATABASE_URL via `wrangler secret put DATABASE_URL`
+  "vars": {
+    "ENVIRONMENT": "development",
+    "ORIGIN_URL": "http://localhost:8080",
+    "CACHE_TTL_SECONDS": "60"
+  },
+  // Cloudflare KV namespace backing edge read-through cache
+  "kv_namespaces": [
+    {
+      "binding": "CACHE_KV",
+      "id": "00000000000000000000000000000000",
+      "preview_id": "00000000000000000000000000000000"
+    }
+  ],
+  // Optional Cloudflare Hyperdrive pooler for Neon Postgres (or use @neondatabase/serverless + DATABASE_URL)
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "00000000000000000000000000000000",
+      "localConnectionString": "postgres://product:product@localhost:5432/product"
+    }
+  ],
+  "env": {
+    "staging": {
+      "name": "product-worker-staging",
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "ORIGIN_URL": "https://staging-api.example.com",
+        "CACHE_TTL_SECONDS": "60"
+      }
+    },
+    "production": {
+      "name": "product-worker-production",
+      "vars": {
+        "ENVIRONMENT": "production",
+        "ORIGIN_URL": "https://api.example.com",
+        "CACHE_TTL_SECONDS": "300"
+      }
+    }
+  }
+}

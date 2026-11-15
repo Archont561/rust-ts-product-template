@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Product",
+  "version": "0.1.0",
+  "identifier": "com.product.desktop",
+  "app": {
+    "windows": [
+      {
+        "title": "Product Desktop",
+        "width": 1200,
+        "height": 800,
+        "resizable": true
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}

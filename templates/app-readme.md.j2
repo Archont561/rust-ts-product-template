@@ -1,0 +1,17 @@
+# `{{ name }}`
+
+{{ summary }}
+
+## Composition Root
+
+- Wires shared packages (`@product/*`) and platform-specific infrastructure adapters.
+- Keeps business rules in `rust/crates/services` and `packages/application` rather than duplicating logic inside the delivery shell.
+
+## Architectural Boundaries
+
+- Never imports another `@product/app-*` shell (enforced by `biome.json` and `.alint.yml`).
+- Restricts platform SDK imports to the target runtime owned by this app.
+
+## Local Automation
+
+Run all development, build, and verification workflows through `pixi run tools ls`.

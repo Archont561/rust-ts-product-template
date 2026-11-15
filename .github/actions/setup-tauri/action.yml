@@ -1,0 +1,28 @@
+name: "Setup Tauri v2 Native Build Environment"
+description: "Install Linux WebKitGTK/GTK dependencies (when on Linux) plus the locked Pixi Rust + Bun toolchain."
+
+inputs:
+  cache-key:
+    description: "Shared key prefix for Rust build cache."
+    required: false
+    default: "tauri-release"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Linux native Tauri v2 system libraries
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          libwebkit2gtk-4.1-dev \
+          libappindicator3-dev \
+          librsvg2-dev \
+          patchelf
+
+    - name: Setup Rust & Tasknest workspace
+      uses: ./.github/actions/setup-rust
+      with:
+        install-bun: "true"
+        cache-key: ${{ inputs.cache-key }}

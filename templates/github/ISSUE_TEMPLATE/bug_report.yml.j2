@@ -1,0 +1,91 @@
+# Generated file — do not edit by hand.
+# Source template : templates/github/ISSUE_TEMPLATE/bug_report.yml.j2
+# Regenerate with : pixi run tools run docs-sync --write
+name: Bug report
+description: Report a bug in any app, crate, package, or toolchain surface
+title: "[Bug]: "
+labels:
+  - bug
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Fill out the fields below so maintainers can reproduce and isolate the failing layer quickly.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected surface / layer
+      description: Which app, workspace layer, or tooling surface exhibits the issue?
+      options:
+{% for area in issue_areas %}        - {{ area }}
+{% endfor %}    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform / runtime
+      description: Select every platform or browser where you reproduced the bug.
+      multiple: true
+      options:
+        - Linux (linux-64)
+        - macOS Apple Silicon (osx-arm64)
+        - Windows (win-64)
+        - iOS (Tauri mobile)
+        - Android (Tauri mobile)
+        - Chrome / Edge (MV3 extension)
+        - Firefox (MV3 extension)
+        - Safari (MV3 extension)
+        - Cloudflare Workers / Edge
+        - Docker / Alpine container
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Product / commit version
+      description: Release tag or git SHA where the bug occurs.
+      placeholder: "v{{ version }}"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal commands or UI steps to trigger the issue.
+      placeholder: |
+        1. Run `pixi run tools run ...`
+        2. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste command output or stack traces (auto-formatted as shell output).
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Verification
+      options:
+        - label: I reproduced this on a clean `pixi install` environment
+          required: false
+        - label: I searched existing issues before opening this report
+          required: true

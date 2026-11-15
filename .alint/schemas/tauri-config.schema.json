@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/tauri-config.schema.json",
+  "title": "Tauri v2 App Config Policy",
+  "description": "Enforces Tauri v2 schema URL, reverse-DNS identifier, SemVer version, active bundling, and forbids disabling CSP (security.csp: null).",
+  "type": "object",
+  "required": ["$schema", "productName", "version", "identifier", "bundle"],
+  "properties": {
+    "$schema": {
+      "const": "https://schema.tauri.app/config/2"
+    },
+    "productName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$"
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^com\\.product\\.(desktop|mobile)$"
+    },
+    "app": {
+      "type": "object",
+      "properties": {
+        "security": {
+          "type": "object",
+          "properties": {
+            "csp": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "required": ["active"],
+      "properties": {
+        "active": {
+          "const": true
+        },
+        "iOS": {
+          "type": "object",
+          "properties": {
+            "minimumSystemVersion": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+$"
+            }
+          }
+        },
+        "android": {
+          "type": "object",
+          "properties": {
+            "minSdkVersion": {
+              "type": "integer",
+              "minimum": 24
+            }
+          }
+        }
+      }
+    }
+  }
+}

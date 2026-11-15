@@ -1,0 +1,860 @@
+# alint — declarative repository layout, version-export, and import-boundary rules.
+#
+# Run locally and in CI with `pixi run tools run lint-repo`.
+# Every workspace unit (Rust crate/adapter or TS package) is identified by its
+# manifest (`Cargo.toml` or `package.json`), so grouping folders like
+# `packages/frontend` and `packages/infrastructure` are naturally skipped.
+
+version: 1
+
+extends:
+  # Open-source hygiene (merge markers, bidi controls, whitespace, newlines);
+  # remove items from `except:` when publishing as an open-source repo.
+  - url: alint://bundled/oss-baseline@v1
+    except:
+      - oss-security-policy-exists
+      - oss-codeowners-exists
+      - oss-code-of-conduct-exists
+  - alint://bundled/hygiene/no-tracked-artifacts@v1
+  - alint://bundled/hygiene/lockfiles@v1
+  - alint://bundled/agent-hygiene@v1
+  - alint://bundled/agent-context@v1
+  - alint://bundled/tooling/editorconfig@v1
+  # Rust toolchain is pinned centrally in pixi.toml + pixi.lock instead of rust-toolchain.toml
+  - url: alint://bundled/rust@v1
+    except: [rust-toolchain-pinned]
+  - alint://bundled/monorepo/cargo-workspace@v1
+  - alint://bundled/ci/github-actions@v1
+
+rules:
+  # --- Required workspace roots -------------------------------------------
+  - id: require-root-readme
+    kind: file_exists
+    paths: README.md
+    level: error
+    message: "Repository root README.md is required."
+
+  - id: require-root-package-json
+    kind: file_exists
+    paths: package.json
+    level: error
+    message: "Root Bun workspace package.json is required."
+
+  - id: require-tsconfig-base
+    kind: file_exists
+    paths: tsconfig.base.json
+    level: error
+    message: "Shared tsconfig.base.json is required."
+
+  - id: require-biome-config
+    kind: file_exists
+    paths: biome.json
+    level: error
+    message: "Root biome.json is required."
+
+  - id: require-rust-workspace-manifest
+    kind: file_exists
+    paths: Cargo.toml
+    level: error
+    message: "Root Rust workspace Cargo.toml is required."
+
+  - id: require-rust-clippy-config
+    kind: file_exists
+    paths: clippy.toml
+    level: error
+    message: "Root clippy.toml is required."
+
+  - id: require-cargo-deny-config
+    kind: file_exists
+    paths: deny.toml
+    level: error
+    message: "Root cargo-deny configuration deny.toml is required."
+
+  - id: require-cargo-audit-config
+    kind: file_exists
+    paths: .cargo/audit.toml
+    level: error
+    message: "RustSec cargo-audit configuration .cargo/audit.toml is required."
+
+  - id: require-web-rust-crate-and-dockerfile
+    kind: dir_contains
+    select: apps/web
+    require:
+      - Cargo.toml
+      - Dockerfile
+    level: error
+    message: "apps/web must be a pure Rust crate containing both Cargo.toml and a multi-stage Alpine Dockerfile."
+
+  - id: forbid-web-package-json
+    kind: file_absent
+    paths: apps/web/package.json
+    level: error
+    message: "apps/web is a pure Rust server crate and must not contain a JS package.json."
+
+  - id: require-docker-compose
+    kind: file_exists
+    paths: docker-compose.yml
+    level: error
+    message: "Root docker-compose.yml is required for local multi-service development."
+
+  - id: require-worker-config
+    kind: file_exists
+    paths: apps/worker/wrangler.jsonc
+    level: error
+    message: "apps/worker must include a Wrangler worker configuration (wrangler.jsonc)."
+
+  - id: require-pixi-manifest
+    kind: file_exists
+    paths: pixi.toml
+    level: error
+    message: "Workspace pixi.toml is required."
+
+  - id: require-policy-schemas
+    kind: dir_contains
+    select: .alint/schemas
+    require:
+      - pixi-tasks.schema.json
+      - root-package.schema.json
+      - workspace-package.schema.json
+      - app-package.schema.json
+      - ts-package-tsconfig.schema.json
+      - rust-workspace-cargo.schema.json
+      - rust-member-cargo.schema.json
+      - tasknest.schema.json
+      - downloads.schema.json
+      - tauri-config.schema.json
+      - docker-compose.schema.json
+      - skills-lock.schema.json
+      - github-workflow.schema.json
+      - renovate.schema.json
+      - lefthook.schema.json
+      - pixi-sandbox.schema.json
+      - rumdl.schema.json
+      - github-issue-form.schema.json
+    level: error
+    message: "Every repository policy JSON Schema under .alint/schemas/*.schema.json is required."
+
+  - id: require-alint-policy-tests
+    kind: dir_contains
+    select: ".alint/tests/*"
+    require: ["*.yml"]
+    level: error
+    message: "Every policy test suite directory under .alint/tests/* must contain at least one *.yml policy test."
+
+  - id: require-doc-templates
+    kind: dir_contains
+    select: templates
+    require:
+      - README.md.j2
+      - AGENTS.md.j2
+      - crate-readme.md.j2
+      - package-readme.md.j2
+      - app-readme.md.j2
+    level: error
+    message: "Jinja documentation templates (README.md.j2, AGENTS.md.j2, crate/package/app-readme.md.j2) must exist under templates/."
+
+  - id: require-github-issue-template-sources
+    kind: dir_contains
+    select: templates/github/ISSUE_TEMPLATE
+    require:
+      - bug_report.yml.j2
+      - feature_request.yml.j2
+      - config.yml.j2
+    level: error
+    message: "Jinja GitHub Issue Form templates must exist under templates/github/ISSUE_TEMPLATE/."
+
+  - id: require-github-pr-template-source
+    kind: file_exists
+    paths: templates/github/PULL_REQUEST_TEMPLATE.md.j2
+    level: error
+    message: "Jinja GitHub PR template source templates/github/PULL_REQUEST_TEMPLATE.md.j2 is required."
+
+  - id: require-github-issue-templates
+    kind: dir_contains
+    select: .github/ISSUE_TEMPLATE
+    require:
+      - bug_report.yml
+      - feature_request.yml
+      - config.yml
+    level: error
+    message: "Rendered GitHub Issue Form templates must exist under .github/ISSUE_TEMPLATE/."
+
+  - id: require-github-pr-template
+    kind: file_exists
+    paths: .github/PULL_REQUEST_TEMPLATE.md
+    level: error
+    message: "Rendered GitHub Pull Request template .github/PULL_REQUEST_TEMPLATE.md is required."
+
+  # --- JSON Schema policy contracts (.alint/schemas/*.schema.json) --------
+  - id: pixi-only-tools-task
+    kind: json_schema_passes
+    paths: pixi.toml
+    format: toml
+    schema_path: .alint/schemas/pixi-tasks.schema.json
+    level: error
+    message: "pixi.toml must declare ONLY the single root `tools` task delegating to Tasknest (no extra root, feature, or target tasks)."
+
+  - id: schema-root-package
+    kind: json_schema_passes
+    paths: package.json
+    format: json
+    schema_path: .alint/schemas/root-package.schema.json
+    level: error
+    message: "Root package.json must stay private ESM, declare workspaces, carry no runtime dependencies, and define no root scripts (use `pixi run tools`)."
+
+  - id: schema-workspace-package
+    kind: json_schema_passes
+    paths:
+      - "packages/*/package.json"
+      - "packages/frontend/*/package.json"
+      - "packages/infrastructure/*/package.json"
+    format: json
+    schema_path: .alint/schemas/workspace-package.schema.json
+    level: error
+    message: "Internal TS packages must follow .alint/schemas/workspace-package.schema.json (@product/* name, private ESM, bun/source/types/import + ./package.json exports, standard scripts, workspace:* internal deps)."
+
+  - id: schema-app-package
+    kind: json_schema_passes
+    paths: "apps/*/package.json"
+    format: json
+    schema_path: .alint/schemas/app-package.schema.json
+    level: error
+    message: "App shells must follow .alint/schemas/app-package.schema.json (@product/app-* name, private ESM, workspace:* shared deps, no cross-app dependencies)."
+
+  - id: schema-ts-package-tsconfig
+    kind: json_schema_passes
+    paths:
+      - "packages/*/tsconfig.json"
+      - "packages/frontend/*/tsconfig.json"
+      - "packages/infrastructure/*/tsconfig.json"
+    format: json
+    schema_path: .alint/schemas/ts-package-tsconfig.schema.json
+    level: error
+    message: "TS package tsconfig.json must extend tsconfig.base.json, map @/* -> ./*, include src/tests/package.json, and not weaken strictness."
+
+  - id: schema-rust-workspace-cargo
+    kind: json_schema_passes
+    paths: Cargo.toml
+    format: toml
+    schema_path: .alint/schemas/rust-workspace-cargo.schema.json
+    level: error
+    message: "Root Cargo.toml must enforce edition 2024, resolver 3, publish=false, unsafe_code=forbid, zero-panic Clippy denies, and excluded app binaries."
+
+  - id: schema-rust-member-cargo
+    kind: json_schema_passes
+    paths:
+      - "rust/crates/*/Cargo.toml"
+      - "rust/adapters/*/Cargo.toml"
+    format: toml
+    schema_path: .alint/schemas/rust-member-cargo.schema.json
+    level: error
+    message: "Rust workspace crates/adapters must follow .alint/schemas/rust-member-cargo.schema.json (product-* name, description, workspace-inherited version/edition/license/publish/lints)."
+
+  - id: schema-tasknest-config
+    kind: json_schema_passes
+    paths: tasknest.toml
+    format: toml
+    schema_path: .alint/schemas/tasknest.schema.json
+    level: error
+    message: "tasknest.toml must follow .alint/schemas/tasknest.schema.json (config_version=1, root tools discovery, strict unknown_marks=error, declared [marks], and [skill] routed via `pixi run tools`)."
+
+  - id: schema-docs-downloads
+    kind: json_schema_passes
+    paths: apps/docs/content/downloads.json
+    format: json
+    schema_path: .alint/schemas/downloads.schema.json
+    level: error
+    message: "apps/docs/content/downloads.json must satisfy .alint/schemas/downloads.schema.json (valid vX.Y.Z release, all desktop/mobile/extension platforms, HTTPS URLs, SHA-256 digests)."
+
+  - id: schema-tauri-config
+    kind: json_schema_passes
+    paths:
+      - apps/desktop/src-tauri/tauri.conf.json
+      - apps/mobile/src-tauri/tauri.conf.json
+    format: json
+    schema_path: .alint/schemas/tauri-config.schema.json
+    level: error
+    message: "Tauri v2 configs must satisfy .alint/schemas/tauri-config.schema.json (v2 $schema, reverse-DNS identifier, active bundle, non-null CSP)."
+
+  - id: schema-docker-compose
+    kind: json_schema_passes
+    paths: docker-compose.yml
+    format: yaml
+    schema_path: .alint/schemas/docker-compose.schema.json
+    level: error
+    message: "docker-compose.yml must satisfy .alint/schemas/docker-compose.schema.json (explicit profiles on every service, db-local healthcheck, env interpolation for Neon secrets)."
+
+  - id: schema-skills-lock
+    kind: json_schema_passes
+    paths: skills-lock.json
+    format: json
+    schema_path: .alint/schemas/skills-lock.schema.json
+    level: error
+    message: "skills-lock.json must satisfy .alint/schemas/skills-lock.schema.json (valid schema, baseline clean-code/refactor/bdd skills, and SHA-256 hashes)."
+
+  - id: schema-github-workflows
+    kind: json_schema_passes
+    paths:
+      - .github/workflows/ci.yml
+      - .github/workflows/pages.yml
+      - .github/workflows/release.yml
+      - .github/workflows/security.yml
+    format: yaml
+    schema_path: .alint/schemas/github-workflow.schema.json
+    level: error
+    message: "Hand-maintained workflows must satisfy .alint/schemas/github-workflow.schema.json (name, read-only default permissions, concurrency, per-job timeout-minutes)."
+
+  - id: schema-renovate-config
+    kind: json_schema_passes
+    paths: renovate.json
+    format: json
+    schema_path: .alint/schemas/renovate.schema.json
+    level: error
+    message: "renovate.json must satisfy .alint/schemas/renovate.schema.json (SHA pinning, minimumReleaseAge, Pixi support, packageRules)."
+
+  - id: schema-lefthook-config
+    kind: json_schema_passes
+    paths: lefthook.yml
+    format: yaml
+    schema_path: .alint/schemas/lefthook.schema.json
+    level: error
+    message: "lefthook.yml must define pre-commit and pre-push jobs where every command delegates through `pixi run [-e <env>] tools`."
+
+  - id: schema-pixi-sandbox-config
+    kind: json_schema_passes
+    paths: pixi-sandbox.toml
+    format: toml
+    schema_path: .alint/schemas/pixi-sandbox.schema.json
+    level: error
+    message: "pixi-sandbox.toml must satisfy .alint/schemas/pixi-sandbox.schema.json (schema 1, cargo_vendor=true, budgets, offline developer environments)."
+
+  - id: schema-rumdl-config
+    kind: json_schema_passes
+    paths: .rumdl.toml
+    format: toml
+    schema_path: .alint/schemas/rumdl.schema.json
+    level: error
+    message: ".rumdl.toml must satisfy .alint/schemas/rumdl.schema.json (GFM default, Fumadocs MDX flavor, respect-gitignore=true, .agents/skills/** excluded)."
+
+  - id: schema-github-issue-forms
+    kind: json_schema_passes
+    paths:
+      - .github/ISSUE_TEMPLATE/bug_report.yml
+      - .github/ISSUE_TEMPLATE/feature_request.yml
+    format: yaml
+    schema_path: .alint/schemas/github-issue-form.schema.json
+    level: error
+    message: "GitHub Issue Forms under .github/ISSUE_TEMPLATE/ must satisfy .alint/schemas/github-issue-form.schema.json."
+
+  # Promote bundled ci/github-actions@v1 hardening rules from warning to error
+  # (publish-sandbox.yml is generated by pixi-sandbox init and requires contents: write for sandbox/* branches)
+  - id: gha-workflow-contents-read
+    paths:
+      - .github/workflows/ci.yml
+      - .github/workflows/pages.yml
+      - .github/workflows/release.yml
+      - .github/workflows/security.yml
+      - .github/workflows/relock.yml
+    level: error
+
+  - id: gha-pin-actions-to-sha
+    level: error
+
+  - id: require-github-workflows
+    kind: dir_contains
+    select: .github/workflows
+    require:
+      - ci.yml
+      - pages.yml
+      - release.yml
+      - security.yml
+      - publish-sandbox.yml
+      - relock.yml
+    level: error
+    message: "All core CI/CD and pixi-sandbox workflows must exist under .github/workflows/."
+
+  - id: require-github-setup-actions
+    kind: dir_contains
+    select: ".github/actions/*"
+    require: ["action.yml"]
+    level: error
+    message: "Every composite GitHub Action under .github/actions/* must define action.yml."
+
+  - id: require-renovate-config
+    kind: file_exists
+    paths: renovate.json
+    level: error
+    message: "Root renovate.json is required."
+
+  - id: require-lefthook-config
+    kind: file_exists
+    paths: lefthook.yml
+    level: error
+    message: "Root lefthook.yml is required."
+
+  - id: require-pixi-sandbox-config
+    kind: file_exists
+    paths: pixi-sandbox.toml
+    level: error
+    message: "Root pixi-sandbox.toml is required for offline bundle generation."
+
+  - id: require-pixi-sandbox-restore-script
+    kind: file_exists
+    paths: scripts/restore.sh
+    level: error
+    message: "Offline restore launcher scripts/restore.sh is required."
+
+  - id: require-agent-skill-manifests
+    kind: dir_contains
+    select: ".agents/skills/*"
+    require: ["SKILL.md"]
+    level: error
+    message: "Every coding-agent skill directory under .agents/skills/* must define SKILL.md."
+
+  - id: require-project-tools-skill
+    kind: file_exists
+    paths: .agents/skills/project-tools/SKILL.md
+    level: error
+    message: "Generated Tasknest skill .agents/skills/project-tools/SKILL.md is required."
+
+  - id: require-tasknest-skill
+    kind: file_exists
+    paths: .agents/skills/tasknest/SKILL.md
+    level: error
+    message: "Custom Tasknest authoring skill .agents/skills/tasknest/SKILL.md is required."
+
+  - id: require-tasknest-config
+    kind: file_exists
+    paths: tasknest.toml
+    level: error
+    message: "Workspace tasknest.toml is required."
+
+  - id: require-codecov-config
+    kind: file_exists
+    paths: .codecov.yml
+    level: error
+    message: "Workspace .codecov.yml is required."
+
+  - id: require-bunfig
+    kind: file_exists
+    paths: bunfig.toml
+    level: error
+    message: "Workspace bunfig.toml is required."
+
+  - id: require-vale-config
+    kind: file_exists
+    paths: .vale.ini
+    level: error
+    message: "Workspace .vale.ini is required."
+
+  - id: require-vale-vocabulary
+    kind: file_exists
+    paths: .vale/styles/config/vocabularies/Product/accept.txt
+    level: error
+    message: "Workspace Vale Product vocabulary (.vale/styles/config/vocabularies/Product/accept.txt) is required."
+
+  - id: require-lychee-config
+    kind: file_exists
+    paths: lychee.toml
+    level: error
+    message: "Link checker configuration lychee.toml is required."
+
+  - id: require-rumdl-config
+    kind: file_exists
+    paths: .rumdl.toml
+    level: error
+    message: "Markdown linter configuration .rumdl.toml is required."
+
+  - id: require-backlog-config
+    kind: file_exists
+    paths: backlog/config.yml
+    level: error
+    message: "Backlog configuration backlog/config.yml is required."
+
+  - id: require-tools-hello
+    kind: file_exists
+    paths: tools/hello.ts
+    level: error
+    message: "Starter Tasknest task tools/hello.ts is required."
+
+  # --- Hygiene: no placeholder files or build artifacts committed ---------
+  - id: forbid-placeholder-files
+    kind: file_absent
+    paths:
+      - "**/.gitkeep"
+      - "**/.keep"
+    level: error
+    message: "Do not commit empty-directory placeholders (.gitkeep); place real files in required directories."
+
+  - id: forbid-committed-coverage-or-dist
+    kind: dir_absent
+    paths:
+      - coverage
+      - "**/dist"
+      - target
+    level: error
+    message: "Generated build/coverage artifacts must not be committed."
+
+  # --- Standard layout for every Rust crate & adapter ---------------------
+  - id: rust-unit-layout
+    kind: for_each_dir
+    select:
+      - "rust/crates/*"
+      - "rust/adapters/*"
+    when_iter: 'iter.has_file("Cargo.toml")'
+    require:
+      - kind: dir_exists
+        paths: "{path}/src"
+        message: "Every Rust crate/adapter keeps its sources in src/."
+      - kind: dir_exists
+        paths: "{path}/tests"
+        message: "Every Rust crate/adapter keeps its integration tests in tests/."
+      - kind: dir_exists
+        paths: "{path}/features"
+        message: "Every Rust crate/adapter states its behaviour specs in features/."
+      - kind: dir_contains
+        select: "{path}/features"
+        require: ["*.feature"]
+        message: "Every Rust features/ directory must contain at least one .feature file."
+      - kind: dir_contains
+        select: "{path}/tests"
+        require: ["*.rs"]
+        message: "Every Rust tests/ directory must contain at least one .rs integration test."
+      - kind: file_exists
+        paths: "{path}/README.md"
+        message: "Every Rust crate/adapter must document its boundaries in README.md."
+    level: error
+
+  # --- Standard layout for every TypeScript workspace package -------------
+  - id: ts-unit-layout
+    kind: for_each_dir
+    select:
+      - "packages/*"
+      - "packages/frontend/*"
+      - "packages/infrastructure/*"
+    when_iter: 'iter.has_file("package.json")'
+    require:
+      - kind: dir_exists
+        paths: "{path}/src"
+        message: "Every TS package keeps its sources in src/."
+      - kind: dir_exists
+        paths: "{path}/tests"
+        message: "Every TS package keeps its tests in tests/."
+      - kind: dir_exists
+        paths: "{path}/features"
+        message: "Every TS package states its behaviour specs in features/."
+      - kind: dir_contains
+        select: "{path}/features"
+        require: ["*.feature"]
+        message: "Every TS features/ directory must contain at least one .feature file."
+      - kind: dir_contains
+        select: "{path}/tests"
+        require: ["*.test.ts"]
+        message: "Every TS tests/ directory must contain at least one *.test.ts module."
+      - kind: file_exists
+        paths: "{path}/README.md"
+        message: "Every TS package must document its boundaries in README.md."
+      - kind: file_exists
+        paths: "{path}/tsconfig.json"
+        message: "Every TS package requires a tsconfig.json."
+      - kind: file_exists
+        paths: "{path}/bunup.config.ts"
+        message: "Every TS package requires a bunup.config.ts."
+    level: error
+
+  # --- Rust & TS VERSION exports ------------------------------------------
+  - id: rust-members-export-version
+    kind: every_matching_has
+    select:
+      - "rust/crates/*"
+      - "rust/adapters/*"
+    when_iter: 'iter.has_file("Cargo.toml")'
+    require:
+      - kind: file_content_matches
+        paths: "{path}/src/lib.rs"
+        pattern: 'pub const VERSION: &str = env!\("CARGO_PKG_VERSION"\);'
+    level: error
+    message: 'Every Rust crate/adapter must export `pub const VERSION: &str = env!("CARGO_PKG_VERSION");` from src/lib.rs.'
+
+  - id: ts-packages-export-version
+    kind: every_matching_has
+    select:
+      - "packages/*"
+      - "packages/frontend/*"
+      - "packages/infrastructure/*"
+    when_iter: 'iter.has_file("package.json")'
+    require:
+      - kind: file_content_matches
+        paths: "{path}/src/index.ts"
+        pattern: 'import \{ version \} from "@/package\.json" with \{ type: "json" \};'
+      - kind: file_content_matches
+        paths: "{path}/src/index.ts"
+        pattern: "export const VERSION: string = version;"
+    level: error
+    message: "Every TS package src/index.ts must re-export `VERSION` from `@/package.json`."
+
+  # --- Cross-file workspace version parity (Rust <-> TS root) -------------
+  - id: workspace-version-parity
+    kind: cross_file
+    source:
+      file: Cargo.toml
+      extract: { toml: "$.workspace.package.version" }
+    targets:
+      - file: package.json
+        extract: { json: "$.version" }
+    relation: equals
+    level: error
+    message: "Workspace version must match between root Cargo.toml and root package.json."
+
+  # --- TypeScript import hygiene & architectural boundaries ---------------
+  - id: ts-import-prefixes
+    kind: import_gate
+    language: js
+    paths:
+      - "packages/**/*.{ts,tsx,js,jsx,mts,cts}"
+      - "apps/{desktop,mobile,extension,docs,worker}/{src,entrypoints,tests}/**/*.{ts,tsx,js,jsx,mts,cts}"
+    forbid: '(^|/)\.\.(/|$)|^(/|~|#)|^@$'
+    level: error
+    message: "Use `@/`, `@product/<pkg>`, or `./` imports instead of parent (`../`) or non-`@` aliases."
+
+  - id: boundary-no-cross-app-imports
+    kind: import_gate
+    language: js
+    paths:
+      - "packages/**/*.{ts,tsx,svelte}"
+      - "apps/*/{src,entrypoints}/**/*.{ts,tsx,svelte}"
+    forbid: "^@product/app-"
+    level: error
+    message: "Apps are isolated delivery shells; share code via packages/*, never by importing another @product/app-*."
+
+  - id: boundary-runtime-utils-is-pure-leaf
+    kind: import_gate
+    language: js
+    paths: "packages/runtime-utils/src/**/*.{ts,tsx}"
+    forbid: '^(@product/|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|\$app/|node:|svelte(/|$))'
+    level: error
+    message: "packages/runtime-utils is a pure universal leaf and may not import workspace packages, platform SDKs, Svelte, or Node built-ins."
+
+  - id: boundary-domain-is-leaf
+    kind: import_gate
+    language: js
+    paths: "packages/domain/src/**/*.{ts,tsx}"
+    forbid: "^(@product/(contracts|application|infrastructure-|ui|features|testing|build-utils|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|node:|svelte(/|$))"
+    level: error
+    message: "packages/domain may only depend on @product/runtime-utils (never upper layers, infra, UI, platform SDKs, or Node built-ins)."
+
+  - id: boundary-contracts-no-upper-layers
+    kind: import_gate
+    language: js
+    paths: "packages/contracts/src/**/*.{ts,tsx}"
+    forbid: "^(@product/(application|infrastructure-|ui|features|testing|build-utils|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|node:|svelte(/|$))"
+    level: error
+    message: "packages/contracts may only depend on @product/domain and @product/runtime-utils (never application, infrastructure, UI, or platform SDKs)."
+
+  - id: boundary-application-no-infra-or-ui
+    kind: import_gate
+    language: js
+    paths: "packages/application/src/**/*.{ts,tsx}"
+    forbid: "^(@product/(infrastructure-|ui|features|testing|build-utils|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|node:|svelte(/|$))"
+    level: error
+    message: "packages/application must remain transport-independent (only @product/domain, @product/contracts, and @product/runtime-utils allowed)."
+
+  - id: boundary-ui-is-pure
+    kind: import_gate
+    language: js
+    paths: "packages/frontend/ui/src/**/*.{ts,tsx,svelte}"
+    forbid: '^(@product/(domain|contracts|application|infrastructure-|features|testing|build-utils|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|\$app/|node:)'
+    level: error
+    message: "packages/frontend/ui must stay pure and product/platform agnostic (only @product/runtime-utils allowed internally)."
+
+  - id: boundary-features-no-infra-or-platform
+    kind: import_gate
+    language: js
+    paths: "packages/frontend/features/src/**/*.{ts,tsx,svelte}"
+    forbid: '^(@product/(infrastructure-|testing|build-utils|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|\$app/|node:)'
+    level: error
+    message: "packages/frontend/features may depend on domain/contracts/application/ui, never concrete infrastructure or platform SDKs."
+
+  - id: boundary-infra-no-siblings-app-or-ui
+    kind: import_gate
+    language: js
+    paths: "packages/infrastructure/*/src/**/*.{ts,tsx}"
+    forbid: "^(@product/(application|ui|features|infrastructure-|testing|build-utils|app-)|@neondatabase/|cloudflare:|svelte(/|$))"
+    level: error
+    message: "Infrastructure packages may only depend downward on @product/contracts, @product/domain, and @product/runtime-utils (never sibling infra, application, UI, or apps)."
+
+  - id: boundary-tauri-sdk-isolated
+    kind: import_gate
+    language: js
+    paths:
+      - "packages/infrastructure/{memory,http,wasm,extension}/src/**/*.{ts,tsx}"
+    forbid: "^@tauri-apps/"
+    level: error
+    message: "Only packages/infrastructure/tauri may import @tauri-apps/*."
+
+  - id: boundary-webext-sdk-isolated
+    kind: import_gate
+    language: js
+    paths:
+      - "packages/infrastructure/{memory,http,tauri,wasm}/src/**/*.{ts,tsx}"
+    forbid: "^(@wxt-dev/|@webext-core/)"
+    level: error
+    message: "Only packages/infrastructure/extension may import @wxt-dev/* or @webext-core/*."
+
+  - id: boundary-no-dev-packages-in-runtime-src
+    kind: import_gate
+    language: js
+    paths:
+      - "packages/{domain,contracts,application,runtime-utils}/src/**/*.{ts,tsx}"
+      - "packages/frontend/*/src/**/*.{ts,tsx,svelte}"
+      - "packages/infrastructure/*/src/**/*.{ts,tsx}"
+    forbid: "^@product/(build-utils|testing)(/|$)"
+    level: error
+    message: "Runtime packages must never import dev-only @product/build-utils or @product/testing in src/."
+
+  - id: boundary-build-utils-no-product-runtime
+    kind: import_gate
+    language: js
+    paths: "packages/build-utils/src/**/*.{ts,tsx}"
+    forbid: "^(@product/|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|svelte(/|$))"
+    level: error
+    message: "packages/build-utils is a build-time Node/Bun utility package and must not import runtime workspace packages or platform SDKs."
+
+  # --- App-level TypeScript & Svelte boundaries ---------------------------
+  - id: boundary-docs-isolated-from-product-runtime
+    kind: import_gate
+    language: js
+    paths: "apps/docs/**/*.{ts,tsx,js,jsx}"
+    forbid: "^(@product/(ui|features|application|infrastructure-|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|svelte(/|$))"
+    level: error
+    message: "apps/docs (Fumadocs/React) must stay isolated from Svelte packages, app runtime layers, and native/edge SDKs."
+
+  - id: boundary-worker-isolated-from-ui-and-native-sdks
+    kind: import_gate
+    language: js
+    paths: "apps/worker/src/**/*.{ts,tsx}"
+    forbid: "^(@product/(ui|features|build-utils|testing|infrastructure-(tauri|extension)|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|svelte(/|$)|next(/|$)|fumadocs-)"
+    level: error
+    message: "apps/worker (Cloudflare Workers) must stay isolated from Svelte UI, docs frameworks, dev utils, and desktop/extension SDKs."
+
+  - id: boundary-desktop-app-isolated
+    kind: import_gate
+    language: js
+    paths: "apps/desktop/src/**/*.{ts,tsx,svelte}"
+    forbid: "^(@product/(infrastructure-extension|app-)|@tauri-apps/plugin-(haptics|biometric|barcode-scanner)|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:)"
+    level: error
+    message: "apps/desktop must not import mobile-only Tauri plugins, browser extension SDKs, edge DB drivers, or other apps."
+
+  - id: boundary-mobile-app-isolated
+    kind: import_gate
+    language: js
+    paths: "apps/mobile/src/**/*.{ts,tsx,svelte}"
+    forbid: "^(@product/(infrastructure-extension|app-)|@tauri-apps/plugin-updater|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:)"
+    level: error
+    message: "apps/mobile must not import desktop-only Tauri plugins, browser extension SDKs, edge DB drivers, or other apps."
+
+  - id: boundary-extension-app-isolated
+    kind: import_gate
+    language: js
+    paths: "apps/extension/entrypoints/**/*.{ts,tsx,svelte}"
+    forbid: "^(@product/(infrastructure-tauri|app-)|@tauri-apps/|@neondatabase/|cloudflare:|node:)"
+    level: error
+    message: "apps/extension must not import Tauri SDKs, edge DB drivers, Node built-ins, or other apps."
+
+  - id: require-app-readmes
+    kind: for_each_dir
+    select: "apps/*"
+    require:
+      - kind: file_exists
+        paths: "{path}/README.md"
+        message: "Every delivery app under apps/* must document its composition root in README.md."
+    level: error
+
+  # --- Rust architectural import boundaries (crates, adapters, apps) ------
+  - id: boundary-rust-domain-is-leaf
+    kind: import_gate
+    language: rust
+    paths: "rust/crates/domain/src/**/*.rs"
+    forbid: "^(product_(contracts|services|storage|sync|adapter_)|axum|tauri|tauri_plugin_|wasm_bindgen|sqlx|rusqlite|tokio|reqwest)"
+    level: error
+    message: "rust/crates/domain must stay a pure, WASM-clean leaf crate."
+
+  - id: boundary-rust-contracts-zero-workspace-deps
+    kind: import_gate
+    language: rust
+    paths: "rust/crates/contracts/src/**/*.rs"
+    forbid: "^(product_|axum|tauri|tauri_plugin_|wasm_bindgen|sqlx|rusqlite|tokio|reqwest)"
+    level: error
+    message: "rust/crates/contracts must have zero internal workspace dependencies and no transport/runtime SDKs."
+
+  - id: boundary-rust-services-no-transport-sdks
+    kind: import_gate
+    language: rust
+    paths: "rust/crates/services/src/**/*.rs"
+    forbid: "^(product_adapter_|axum|tauri|tauri_plugin_|wasm_bindgen|sqlx|rusqlite|tokio|reqwest)"
+    level: error
+    message: "rust/crates/services must remain transport-independent and WASM-clean (no axum, tauri, wasm_bindgen, DB drivers, or adapters)."
+
+  - id: boundary-rust-storage-no-sync-services-or-adapters
+    kind: import_gate
+    language: rust
+    paths: "rust/crates/storage/src/**/*.rs"
+    forbid: "^(product_(sync|services|adapter_)|axum|tauri|tauri_plugin_|wasm_bindgen)"
+    level: error
+    message: "rust/crates/storage may not import sync, services, or transport adapters."
+
+  - id: boundary-rust-sync-is-wasm-clean
+    kind: import_gate
+    language: rust
+    paths: "rust/crates/sync/src/**/*.rs"
+    forbid: "^(product_(services|adapter_)|axum|tauri|tauri_plugin_|sqlx|rusqlite|reqwest)"
+    level: error
+    message: "rust/crates/sync must stay transport-agnostic and WASM-clean."
+
+  - id: boundary-rust-adapters-isolated
+    kind: import_gate
+    language: rust
+    paths: "rust/adapters/axum/src/**/*.rs"
+    forbid: "^(product_adapter_(tauri|wasm)|tauri|tauri_plugin_|wasm_bindgen)"
+    level: error
+    message: "rust/adapters/axum must not import Tauri or WASM adapters."
+
+  - id: boundary-rust-tauri-isolated
+    kind: import_gate
+    language: rust
+    paths: "rust/adapters/tauri/src/**/*.rs"
+    forbid: "^(product_adapter_(axum|wasm)|axum|wasm_bindgen)"
+    level: error
+    message: "rust/adapters/tauri must not import Axum or WASM adapters."
+
+  - id: boundary-rust-wasm-isolated
+    kind: import_gate
+    language: rust
+    paths: "rust/adapters/wasm/src/**/*.rs"
+    forbid: "^(product_adapter_(axum|tauri)|axum|tauri|tauri_plugin_|sqlx|rusqlite|tokio)"
+    level: error
+    message: "rust/adapters/wasm must not import Axum, Tauri, or native-only runtime crates."
+
+  - id: boundary-rust-app-web-isolated
+    kind: import_gate
+    language: rust
+    paths: "apps/web/src/**/*.rs"
+    forbid: "^(product_adapter_(tauri|wasm)|tauri|tauri_plugin_|wasm_bindgen)"
+    level: error
+    message: "apps/web (Axum server) must not import Tauri or WASM adapters/SDKs."
+
+  - id: boundary-rust-app-desktop-isolated
+    kind: import_gate
+    language: rust
+    paths: "apps/desktop/src-tauri/src/**/*.rs"
+    forbid: "^(product_adapter_(axum|wasm)|axum|wasm_bindgen|tauri_plugin_(haptics|biometric|barcode_scanner))"
+    level: error
+    message: "apps/desktop must not import Axum/WASM adapters or mobile-only Tauri plugins."
+
+  - id: boundary-rust-app-mobile-isolated
+    kind: import_gate
+    language: rust
+    paths: "apps/mobile/src-tauri/src/**/*.rs"
+    forbid: "^(product_adapter_(axum|wasm)|axum|wasm_bindgen|tauri_plugin_updater)"
+    level: error
+    message: "apps/mobile must not import Axum/WASM adapters or desktop-only Tauri plugins."

@@ -1,0 +1,536 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!.agents/skills",
+      "!.github/ISSUE_TEMPLATE",
+      "!.github/workflows/publish-sandbox.yml",
+      "!.github/workflows/relock.yml",
+      "!scripts/restore.sh"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "markdown": {
+    "formatter": {
+      "enabled": false
+    },
+    "linter": {
+      "enabled": false
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) or non-@ aliases."
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.svelte"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/runtime-utils/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/ or ./ imports instead of parent (../) or non-@ aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "node:*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "packages/runtime-utils is a pure universal leaf and cannot import workspace packages, platform SDKs, Svelte, or Node built-ins."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/runtime-utils, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/contracts",
+                      "@product/application",
+                      "@product/infrastructure-*",
+                      "@product/ui",
+                      "@product/features",
+                      "@product/testing",
+                      "@product/build-utils",
+                      "@product/app-*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "node:*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "packages/domain may only depend on @product/runtime-utils (no upper layers, infra, UI, platform SDKs, or Node built-ins)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/contracts/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/domain, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/application",
+                      "@product/infrastructure-*",
+                      "@product/ui",
+                      "@product/features",
+                      "@product/testing",
+                      "@product/build-utils",
+                      "@product/app-*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "node:*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "packages/contracts may only depend on @product/domain and @product/runtime-utils (never application, infrastructure, UI, or platform SDKs)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/application/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/infrastructure-*",
+                      "@product/ui",
+                      "@product/features",
+                      "@product/testing",
+                      "@product/build-utils",
+                      "@product/app-*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "node:*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "packages/application must remain transport-independent (only @product/domain, @product/contracts, and @product/runtime-utils allowed)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/frontend/ui/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/ or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/domain",
+                      "@product/contracts",
+                      "@product/application",
+                      "@product/infrastructure-*",
+                      "@product/features",
+                      "@product/testing",
+                      "@product/build-utils",
+                      "@product/app-*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "node:*"
+                    ],
+                    "message": "packages/frontend/ui must stay pure and product/platform agnostic."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/frontend/features/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/infrastructure-*",
+                      "@product/testing",
+                      "@product/build-utils",
+                      "@product/app-*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "node:*"
+                    ],
+                    "message": "packages/frontend/features must never import concrete infrastructure or platform SDKs."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/infrastructure/*/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/application",
+                      "@product/ui",
+                      "@product/features",
+                      "@product/infrastructure-*",
+                      "@product/testing",
+                      "@product/build-utils",
+                      "@product/app-*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "Infrastructure adapters may only depend downward on @product/contracts, @product/domain, and @product/runtime-utils (never sibling infra, application, UI, or apps)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/build-utils/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/ or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "packages/build-utils is dev/build-time only and cannot import product runtime packages or platform SDKs."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/worker/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/ui",
+                      "@product/features",
+                      "@product/build-utils",
+                      "@product/testing",
+                      "@product/infrastructure-tauri",
+                      "@product/infrastructure-extension",
+                      "@product/app-*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "apps/worker (Cloudflare Workers) cannot import Svelte UI, desktop/extension SDKs, or other apps."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/docs/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/ or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/ui",
+                      "@product/features",
+                      "@product/application",
+                      "@product/infrastructure-*",
+                      "@product/app-*",
+                      "@tauri-apps/*",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "svelte",
+                      "svelte/*"
+                    ],
+                    "message": "apps/docs (Fumadocs/React) must stay isolated from Svelte UI, app runtime layers, and native/edge SDKs."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/desktop/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/app-*",
+                      "@product/infrastructure-extension",
+                      "@tauri-apps/plugin-haptics",
+                      "@tauri-apps/plugin-biometric",
+                      "@tauri-apps/plugin-barcode-scanner",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*"
+                    ],
+                    "message": "apps/desktop cannot import mobile-only plugins, extension/edge SDKs, or other apps."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/mobile/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/app-*",
+                      "@product/infrastructure-extension",
+                      "@tauri-apps/plugin-updater",
+                      "@wxt-dev/*",
+                      "@webext-core/*",
+                      "@neondatabase/*",
+                      "cloudflare:*"
+                    ],
+                    "message": "apps/mobile cannot import desktop-only plugins, extension/edge SDKs, or other apps."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/extension/entrypoints/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["..", "../*", "../**", "./../*", "./../**", "~/*", "#*"],
+                    "message": "Use @/, @product/<pkg>, or ./ imports instead of parent (../) aliases."
+                  },
+                  {
+                    "group": [
+                      "@product/app-*",
+                      "@product/infrastructure-tauri",
+                      "@tauri-apps/*",
+                      "@neondatabase/*",
+                      "cloudflare:*",
+                      "node:*"
+                    ],
+                    "message": "apps/extension cannot import Tauri/edge/Node SDKs or other apps."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

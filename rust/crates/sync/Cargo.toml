@@ -1,0 +1,12 @@
+[package]
+name = "product-sync"
+description = "Offline-first synchronization engine and deterministic conflict resolution."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true

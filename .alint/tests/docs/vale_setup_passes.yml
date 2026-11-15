@@ -1,0 +1,43 @@
+test_version: 1
+name: vale configuration and Product vocabulary pass together
+tags: [check, docs, vale, passing]
+
+docs:
+  title: prose linting is wired to .vale.ini and Product vocabulary
+  case: pass
+  kind: file_exists
+
+given:
+  tree:
+    .vale.ini: |
+      StylesPath = .vale/styles
+      Vocab = Product
+
+      [*.md]
+      BasedOnStyles = Vale
+    .vale:
+      styles:
+        config:
+          vocabularies:
+            Product:
+              accept.txt: |
+                alint
+                rumdl
+                Tasknest
+  config: |
+    version: 1
+    rules:
+      - id: require-vale-config
+        kind: file_exists
+        paths: .vale.ini
+        level: error
+      - id: require-vale-vocabulary
+        kind: file_exists
+        paths: .vale/styles/config/vocabularies/Product/accept.txt
+        level: error
+
+when: [check]
+
+expect:
+  - exit: success
+    violations: []

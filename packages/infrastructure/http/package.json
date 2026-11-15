@@ -1,0 +1,23 @@
+{
+  "name": "@product/infrastructure-http",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@product/contracts": "workspace:*"
+  },
+  "scripts": {
+    "build": "bunup",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  }
+}

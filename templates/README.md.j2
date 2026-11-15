@@ -1,0 +1,175 @@
+<!--
+  Generated file — do not edit README.md by hand.
+
+  Source template : templates/README.md.j2
+  Regenerate with : pixi run tools run docs-sync --write
+  Verify in CI    : pixi run tools run docs-sync
+-->
+
+# Product Monorepo Template (Rust + TypeScript + Svelte 5)
+
+> **Build one software product once — ship it across API servers, Desktop, Mobile, Browser Extensions, and Docs from a single Rust + TypeScript (Svelte 5) monorepo (`v{{ version }}`).**
+
+This repository is a ready-to-clone **multi-platform software product monorepo template** combining:
+
+- **Rust core & transport-independent services** (`rust/crates/*`, `rust/adapters/*` — {{ rust_crate_count }} core crates and {{ rust_adapter_count }} thin adapters) compiled natively for servers and desktop/mobile apps, and to **WebAssembly (WASM)** for browsers and extensions.
+- **TypeScript contracts, application client, and injectable infrastructure** (`packages/*` — {{ ts_package_count }} workspace packages) built with strict TypeScript, Bun, and zero-global-coupling adapters so every platform boundary is unit-testable without a WebView, browser, or live server.
+- **Shared Svelte 5 UI** (`packages/frontend/{ui,features}`) styled with **UnoCSS** and headless primitives (**Bits UI / Zag.js**), reused across Desktop, Mobile, and Browser Extensions.
+- **Hard architectural & supply-chain guardrails** enforced automatically through `alint`, `biome`, `clippy`, `cargo-deny`, `cargo-audit`, `gherlint`, `lychee`, `rumdl`, `vale`, and `pixi`.
+
+---
+
+## Target Surfaces (`apps/*` — {{ app_count }} apps)
+
+| App                                          | Stack                                                | Role                                                                                      |
+| -------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`apps/web`](apps/web/README.md)             | Pure-Rust **Axum** + `utoipa` + **Alpine** container | Typed OpenAPI HTTP server (`/api/hello`, `/api/openapi.json`) compiled to a static binary |
+| [`apps/worker`](apps/worker/README.md)       | **Cloudflare Workers** (`wrangler.jsonc`) + **WASM** | Edge cache (`CACHE_KV`), Neon DB client / Hyperdrive, WASM core, and `apps/web` proxy     |
+| [`apps/desktop`](apps/desktop/README.md)     | **Tauri v2** + **Svelte 5**                          | Native Linux, macOS, and Windows app (`dialog`, `fs`, `notification`, `updater` plugins)  |
+| [`apps/mobile`](apps/mobile/README.md)       | **Tauri v2** + **Svelte 5**                          | Native iOS & Android app (`haptics`, `biometric`, `barcode-scanner`, `deep-link`, SQLite) |
+| [`apps/extension`](apps/extension/README.md) | **WXT** (MV3) + **Svelte 5**                         | Multi-browser WebExtension (Chrome, Edge, Firefox, Safari) with popup, sidepanel, options |
+| [`apps/docs`](apps/docs/README.md)           | **Fumadocs** (static export)                         | Product showcase, documentation, interactive OpenAPI reference, and release Downloads     |
+
+---
+
+## Architecture Overview
+
+Every runtime composes the same **transport-independent services** and **injectable contracts** instead of duplicating business rules per platform:
+
+```text
+                        SHARED UI (Svelte 5 + UnoCSS)
+                    packages/frontend/{ui, features}
+                                    │
+                                    ▼
+                   TRANSPORT-INDEPENDENT TS CLIENT
+                         packages/application
+                    (depends only on @product/contracts)
+                                    │
+                                    ▼
+                   INJECTABLE INFRASTRUCTURE ADAPTERS
+         packages/infrastructure/{memory, http, tauri, wasm, extension}
+             │               │              │               │
+             ▼               ▼              ▼               ▼
+         apps/web      apps/desktop    apps/mobile    apps/extension
+       (Rust Axum       (Tauri v2       (Tauri v2       (WXT MV3
+      Alpine binary)     Desktop)        Mobile)        Browsers)
+             │               │              │               │
+             └───────────────┴──────┬───────┴───────────────┘
+                                    ▼
+                        THIN RUST TRANSPORT ADAPTERS
+                     rust/adapters/{axum, tauri, wasm}
+                                    │
+                                    ▼
+                    TRANSPORT-INDEPENDENT RUST CORE
+              rust/crates/{domain, contracts, services, storage, sync}
+```
+
+### Core Design Principles
+
+1. **Zero-dependency contracts (`rust/crates/contracts`, `packages/contracts`):** Wire shapes, error taxonomies, and capability interfaces depend on nothing else in the workspace so clients and tests compile ahead of any runtime.
+2. **One service layer, many doors (`rust/crates/services`):** Validation and business rules execute through `ProductServices` (single-door `dispatch` + typed operations). `rust/adapters/{axum,tauri,wasm}` only translate HTTP, Tauri IPC, or WASM payloads.
+3. **Injectable TypeScript infrastructure (`packages/infrastructure/*`):** Every adapter accepts its low-level runtime primitive (`fetch`, `invoke`, `sendMessage`, lazy WASM loader) as a parameter and provides safe preview fallbacks (such as degrading cleanly outside a Tauri WebView in browser previews).
+4. **Svelte 5 presentation stays platform-agnostic (`packages/frontend/*`):** Components consume contracts and callbacks—never Tauri IPC, `chrome.*`/`browser.*`, or raw `fetch`.
+5. **Private by default:** Every internal Cargo crate (`publish.workspace = true` → `false`) and npm package (`"private": true`) blocks accidental publication until explicitly opted out.
+
+---
+
+## Repository Structure
+
+| Path                                                                                                     | Role                                                                                                                                                                                                    |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`Cargo.toml`](Cargo.toml), [`clippy.toml`](clippy.toml)                                                 | Root Rust workspace manifest (Edition 2024, zero-panic Clippy policy)                                                                                                                                   |
+| [`deny.toml`](deny.toml), [`.cargo/audit.toml`](.cargo/audit.toml)                                       | Rust supply-chain, license, and RustSec advisory policies                                                                                                                                               |
+| [`docker-compose.yml`](docker-compose.yml), [`.env.example`](.env.example)                               | Local multi-service stack (`apps/web`, offline Postgres, Neon Local, `apps/worker` edge cache)                                                                                                          |
+| [`pixi.toml`](pixi.toml), [`pixi.lock`](pixi.lock)                                                       | Reproducible cross-platform toolchain (`default`, `js`, `lint`, `docs`, `rust`, `full` environments)                                                                                                    |
+| [`package.json`](package.json), [`tsconfig.base.json`](tsconfig.base.json)                               | Bun workspace root and strict TypeScript config (`customConditions: ["source"]`)                                                                                                                        |
+| [`biome.json`](biome.json), [`.alint.yml`](.alint.yml)                                                   | Formatting, TS/Svelte linting, and bundled + schema + boundary repository rules                                                                                                                         |
+| [`.alint/`](.alint/schemas/pixi-tasks.schema.json) (`schemas/`, `tests/`)                                | {{ schema_count }} policy JSON Schemas enforced by `alint` + {{ policy_test_count }} declarative `alint test` specs and real-schema regression checks (`pixi run tools run test-policy`)                |
+| [`templates/`](templates/README.md.j2)                                                                   | Jinja templates for root `README.md`, `AGENTS.md`, `.github/` issue & PR templates, and unit README scaffolding (`crate`, `package`, `app`) rendered via `pixi run tools run docs-sync`                  |
+| [`pixi-sandbox.toml`](pixi-sandbox.toml), [`scripts/restore.sh`](scripts/restore.sh)                     | Airlocked offline development bundles (`default`–`full` + vendored Cargo crates across Linux/macOS/Windows) and restore launcher                                                                        |
+| [`.github/`](.github/workflows/ci.yml), [`renovate.json`](renovate.json), [`lefthook.yml`](lefthook.yml) | SHA-pinned CI/Pages/Release/Security/`pixi-sandbox` workflows, reusable `.github/actions/setup*` actions, Renovate config, and lefthook `pre-commit`/`pre-push` hooks                                   |
+| [`.agents/skills/`](.agents/skills/tasknest/SKILL.md), [`skills-lock.json`](skills-lock.json)            | {{ skill_count }} project coding-agent skills ({{ skill_list }})                                                                                                                                        |
+| [`AGENTS.md`](AGENTS.md), [`.editorconfig`](.editorconfig), [`.gitattributes`](.gitattributes)           | Generated coding-agent instructions and cross-OS editor/line-ending normalization                                                                                                                       |
+| [`tasknest.toml`](tasknest.toml), `tools/`                                                               | Multi-root TypeScript task discovery across root and `apps/*/tools`                                                                                                                                     |
+| [`.codecov.yml`](.codecov.yml), [`bunfig.toml`](bunfig.toml)                                             | Separate `rust` and `ts` LCOV coverage flags and Bun test configuration                                                                                                                                 |
+| [`.rumdl.toml`](.rumdl.toml), [`.vale.ini`](.vale.ini), [`lychee.toml`](lychee.toml)                     | Markdown/MDX linting (`rumdl`), prose linting (`vale`), and offline/online link verification (`lychee`)                                                                                                 |
+| [`rust/crates/domain`](rust/crates/domain/README.md)                                                     | Pure Rust domain entities, value objects, invariants, and errors                                                                                                                                        |
+| [`rust/crates/contracts`](rust/crates/contracts/README.md)                                               | Zero-dependency Rust DTOs, service envelopes, and error taxonomy                                                                                                                                        |
+| [`rust/crates/services`](rust/crates/services/README.md)                                                 | Transport-independent services and single-door dispatcher                                                                                                                                               |
+| [`rust/crates/storage`](rust/crates/storage/README.md)                                                   | Persistence traits, SQLite/Postgres abstractions, and migrations                                                                                                                                        |
+| [`rust/crates/sync`](rust/crates/sync/README.md)                                                         | Offline-first sync protocol and deterministic conflict resolution                                                                                                                                       |
+| `rust/adapters/{axum,tauri,wasm}`                                                                        | Thin transport bridges forwarding to `rust/crates/services`                                                                                                                                             |
+| `packages/{runtime-utils,domain,contracts,application,testing,build-utils}`                              | Shared TypeScript core, contracts, transport-agnostic client, test helpers, and build utilities                                                                                                         |
+| [`packages/frontend`](packages/frontend/README.md) (`ui/`, `features/`)                                  | Shared Svelte 5 + Bits UI / Zag.js + UnoCSS design system and reusable feature flows                                                                                                                    |
+| `packages/infrastructure/{memory,http,tauri,wasm,extension}`                                             | Injectable `ServiceTransport` implementations with runtime boundary validation                                                                                                                          |
+| [`backlog/`](backlog/README.md)                                                                          | Offline-first `Backlog.md` tasks, specs, milestones, and ADRs                                                                                                                                           |
+
+---
+
+## Quick Start
+
+Install [Pixi](https://pixi.sh), then bootstrap and run **all** repository automation through the single `pixi run tools` entrypoint (backed by Tasknest and enforced by [`.alint/schemas/pixi-tasks.schema.json`](.alint/schemas/pixi-tasks.schema.json)):
+
+```bash
+# Install default toolchain (Bun, Biome, alint, rumdl, Vale, lychee, gherlint, lefthook, Tasknest)
+pixi install
+pixi run tools run install
+pixi run tools run hooks
+
+# Run TypeScript tests, coverage, and static checks
+pixi run tools run test-ts
+pixi run tools run test-ts --coverage
+pixi run tools run lint-ts
+pixi run tools run lint-md
+pixi run tools run lint-repo
+pixi run tools run test-policy
+pixi run tools run docs-sync
+pixi run tools run lint-gherkin
+pixi run tools run links
+pixi run tools run lint-prose
+
+# Run Rust checks, tests, and supply-chain verification
+pixi run -e rust tools run lint-rust
+pixi run -e rust tools run test-rust
+pixi run -e rust tools run deny
+pixi run -e rust tools run audit
+```
+
+### Tasknest App & Package Commands
+
+All root, per-app, and manifest-backed package workflows are registered in [`tasknest.toml`](tasknest.toml) (Tasknest `0.4.0`, strict marks + persistent dev servers + generated agent skill) and invoked via `pixi run tools`:
+
+```bash
+pixi run tools ls
+pixi run tools check
+pixi run tools skill --check            # Verify .agents/skills/project-tools/SKILL.md is up to date
+pixi run tools run --each typecheck     # Run `typecheck` across all {{ ts_package_count }} workspace packages
+pixi run tools run -p pkg.contracts test # Run package-scoped tests
+pixi run tools run docs-sync --write    # Regenerate README.md and AGENTS.md from templates/*.j2
+pixi run tools run web dev              # Run Rust Axum API server
+pixi run tools run web openapi          # Emit OpenAPI 3.1 JSON spec
+pixi run tools run web docker           # Build static Alpine binary image
+pixi run tools run worker dev           # Run Cloudflare Worker locally (Wrangler)
+pixi run tools run worker deploy        # Deploy Worker to staging/production
+pixi run tools run desktop dev          # Launch Tauri v2 desktop app
+pixi run tools run mobile dev           # Launch Tauri v2 mobile app
+pixi run tools run ext dev              # Launch WXT extension (chrome/firefox/safari)
+pixi run tools run ext package-safari   # Wrap Safari MV3 bundle in Xcode (macOS)
+pixi run tools run docs dev             # Run Fumadocs showcase & docs site
+```
+
+---
+
+## Adapting This Template for Your Product
+
+1. **Rename identifiers:** Replace `@product/*` in `package.json` manifests, `product-*` in Rust `Cargo.toml` manifests, `product@example.com` in `apps/extension/wxt.config.ts`, and bundle identifiers in `apps/{desktop,mobile}/src-tauri/tauri.conf.json`.
+2. **Add domain & service operations:** Define request/response contracts in `rust/crates/contracts` and `packages/contracts`, implement logic once in `rust/crates/services`, and expose it through `rust/adapters/*` and `packages/application`.
+3. **Build shared Svelte 5 screens:** Place design primitives in `packages/frontend/ui` and reusable product flows in `packages/frontend/features`, injecting `ProductClient` from each app shell.
+4. **Update templated docs cleanly:** Edit `templates/README.md.j2` or `templates/AGENTS.md.j2` and run `pixi run tools run docs-sync --write`; scaffold new unit READMEs with `pixi run tools run docs-sync --scaffold crate|package|app --name <name> --output <path>`.
+5. **Keep guardrails green:** Run `pixi run tools run lint-repo`, `pixi run tools run test-policy`, `pixi run tools run lint-ts`, `pixi run tools run lint-md`, and `pixi run -e rust tools run lint-rust` before opening a PR so architectural boundaries stay enforced as the product grows.
+
+---
+
+## License
+
+This template is licensed under the [MIT License](LICENSE).

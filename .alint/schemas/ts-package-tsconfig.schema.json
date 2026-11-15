@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/ts-package-tsconfig.schema.json",
+  "title": "TypeScript Workspace Package tsconfig.json Policy",
+  "description": "Enforces extending tsconfig.base.json, mapping @/* to ./*, including src and tests, and forbids weakening strict compiler options.",
+  "type": "object",
+  "required": ["extends", "compilerOptions", "include"],
+  "properties": {
+    "extends": {
+      "type": "string",
+      "pattern": "^(\\.\\./)+tsconfig\\.base\\.json$"
+    },
+    "compilerOptions": {
+      "type": "object",
+      "required": ["paths"],
+      "properties": {
+        "paths": {
+          "type": "object",
+          "required": ["@/*"],
+          "properties": {
+            "@/*": {
+              "const": ["./*"]
+            }
+          }
+        },
+        "strict": { "const": true },
+        "noImplicitAny": { "const": true },
+        "noUncheckedIndexedAccess": { "const": true },
+        "exactOptionalPropertyTypes": { "const": true }
+      }
+    },
+    "include": {
+      "type": "array",
+      "allOf": [
+        { "contains": { "const": "src" } },
+        { "contains": { "const": "tests" } },
+        { "contains": { "const": "package.json" } }
+      ],
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

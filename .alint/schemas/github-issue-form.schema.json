@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/github-issue-form.schema.json",
+  "title": "GitHub Issue Form YAML Policy",
+  "description": "Validates GitHub Issue Form templates under .github/ISSUE_TEMPLATE/{bug_report,feature_request}.yml (required name, description, labels, and typed form body components).",
+  "type": "object",
+  "required": ["name", "description", "labels", "body"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "labels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "body": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["type", "attributes"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["markdown", "input", "textarea", "dropdown", "checkboxes"]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "attributes": {
+            "type": "object",
+            "minProperties": 1
+          },
+          "validations": {
+            "type": "object",
+            "properties": {
+              "required": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

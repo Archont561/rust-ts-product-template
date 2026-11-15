@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/rust-member-cargo.schema.json",
+  "title": "Rust Workspace Member Cargo.toml Policy",
+  "description": "Enforces product-* naming, description, and workspace inheritance for version, edition, license, publish, and lints across rust/{crates,adapters}/*/Cargo.toml.",
+  "type": "object",
+  "required": ["package", "lints"],
+  "properties": {
+    "package": {
+      "type": "object",
+      "required": ["name", "description", "version", "edition", "license", "publish"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^product-[a-z0-9-]+$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10
+        },
+        "version": {
+          "$ref": "#/$defs/workspaceInherited"
+        },
+        "edition": {
+          "$ref": "#/$defs/workspaceInherited"
+        },
+        "license": {
+          "$ref": "#/$defs/workspaceInherited"
+        },
+        "publish": {
+          "$ref": "#/$defs/workspaceInherited"
+        }
+      }
+    },
+    "lints": {
+      "$ref": "#/$defs/workspaceInherited"
+    }
+  },
+  "$defs": {
+    "workspaceInherited": {
+      "type": "object",
+      "required": ["workspace"],
+      "properties": {
+        "workspace": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

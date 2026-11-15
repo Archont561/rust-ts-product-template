@@ -1,0 +1,55 @@
+# cargo-deny 0.20+ supply-chain policy
+# Fast offline check (`pixi run -e rust deny-rust`): bans, licenses, sources
+# Online advisory check (`pixi run -e rust deny-rust-advisories`): RustSec advisories
+
+[graph]
+all-features = false
+no-default-features = false
+targets = [
+  "x86_64-unknown-linux-gnu",
+  "aarch64-apple-darwin",
+  "x86_64-pc-windows-msvc",
+  "wasm32-unknown-unknown",
+]
+
+[output]
+feature-depth = 1
+
+[advisories]
+version = 2
+yanked = "deny"
+ignore = []
+
+[licenses]
+version = 2
+confidence-threshold = 0.8
+unused-allowed-license = "allow"
+allow = [
+  "MIT",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Zlib",
+  "Unicode-3.0",
+  "CC0-1.0",
+  "BSL-1.0",
+]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+allow-wildcard-paths = true
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+deny = [
+  { crate = "openssl-sys", reason = "Use pure-Rust rustls instead of OpenSSL for cross-platform and mobile builds" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

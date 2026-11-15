@@ -1,0 +1,19 @@
+{
+  "name": "@product/app-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --config wrangler.jsonc",
+    "deploy": "wrangler deploy --config wrangler.jsonc",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@product/application": "workspace:*",
+    "@product/contracts": "workspace:*",
+    "@product/infrastructure-http": "workspace:*",
+    "@product/infrastructure-memory": "workspace:*",
+    "@product/infrastructure-wasm": "workspace:*"
+  }
+}

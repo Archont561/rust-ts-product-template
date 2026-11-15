@@ -1,0 +1,15 @@
+# `{{ name }}`
+
+{{ summary }}
+
+## What Belongs Here
+
+- Strict TypeScript implementation under `src/` exporting `VERSION` from `@/package.json`.
+- Executable specifications in `features/*.feature` (linted by `gherlint`).
+- Fast deterministic unit tests in `tests/*.test.ts` (executed via `pixi run tools run test-ts`).
+
+## What Does NOT Belong Here
+
+- Parent relative imports (`../`), `~/*`, or `#*` aliases (use `@/`, `@product/<pkg>`, or `./`).
+- Imports that violate this layer's boundary rules in `biome.json` and `.alint.yml`.
+- Dev-only packages (`@product/build-utils`, `@product/testing`) inside runtime `src/`.

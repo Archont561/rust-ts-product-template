@@ -1,0 +1,55 @@
+{
+  "version": "v0.1.0",
+  "desktop": [
+    {
+      "target": "macos-aarch64",
+      "label": "macOS (Apple Silicon)",
+      "filename": "Product_0.1.0_aarch64.dmg",
+      "url": "https://github.com/your-org/your-repo/releases/download/v0.1.0/Product_0.1.0_aarch64.dmg",
+      "sha256": "pending-release"
+    },
+    {
+      "target": "linux-x86_64",
+      "label": "Linux (x86_64 AppImage)",
+      "filename": "Product_0.1.0_amd64.AppImage",
+      "url": "https://github.com/your-org/your-repo/releases/download/v0.1.0/Product_0.1.0_amd64.AppImage",
+      "sha256": "pending-release"
+    },
+    {
+      "target": "windows-x86_64",
+      "label": "Windows (x86_64 MSI)",
+      "filename": "Product_0.1.0_x64.msi",
+      "url": "https://github.com/your-org/your-repo/releases/download/v0.1.0/Product_0.1.0_x64.msi",
+      "sha256": "pending-release"
+    }
+  ],
+  "mobile": [
+    {
+      "platform": "android",
+      "label": "Android (APK / Google Play)",
+      "url": "https://github.com/your-org/your-repo/releases/download/v0.1.0/Product_0.1.0.apk"
+    },
+    {
+      "platform": "ios",
+      "label": "iOS (App Store)",
+      "url": "https://apps.apple.com/app/id0000000000"
+    }
+  ],
+  "extension": [
+    {
+      "browser": "chrome",
+      "label": "Chrome Web Store",
+      "url": "https://chromewebstore.google.com/detail/product/placeholder"
+    },
+    {
+      "browser": "firefox",
+      "label": "Firefox Add-ons (AMO)",
+      "url": "https://addons.mozilla.org/firefox/addon/product/"
+    },
+    {
+      "browser": "safari",
+      "label": "Safari Web Extension",
+      "url": "https://apps.apple.com/app/id0000000000"
+    }
+  ]
+}

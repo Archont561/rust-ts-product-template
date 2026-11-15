@@ -1,0 +1,74 @@
+# Lefthook v2 Git hooks — all checks route through the single `pixi run tools` entrypoint.
+# Install locally with: `pixi run tools run hooks`
+# Validate syntax with: `pixi run tools run hooks --action validate`
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: lint-ts
+      glob: "**/*.{ts,tsx,js,jsx,mjs,cjs,svelte,json,jsonc,css}"
+      run: pixi run tools run lint-ts
+
+    - name: lint-md
+      glob: "**/*.{md,mdx}"
+      run: pixi run tools run lint-md
+
+    - name: lint-repo
+      run: pixi run tools run lint-repo
+
+    - name: test-policy
+      glob: "{.alint.yml,.alint/**}"
+      run: pixi run tools run test-policy
+
+    - name: tasknest-sync
+      glob: "{tasknest.toml,tools/**,apps/*/tools/**,.agents/skills/project-tools/SKILL.md}"
+      group:
+        piped: true
+        jobs:
+          - name: tasknest-check
+            run: pixi run tools check
+          - name: tasknest-skill-check
+            run: pixi run tools skill --check
+
+    - name: docs-sync
+      glob: "{templates/**,README.md,AGENTS.md,.github/ISSUE_TEMPLATE/**,.github/PULL_REQUEST_TEMPLATE.md,.alint/schemas/**,.alint/tests/**,package.json,Cargo.toml}"
+      run: pixi run tools run docs-sync
+
+    - name: pixi-sandbox-sync
+      glob: "{pixi-sandbox.toml,scripts/restore.sh,.github/workflows/publish-sandbox.yml,.github/workflows/relock.yml}"
+      run: pixi run tools run sandbox --action check
+
+    - name: lint-gherkin
+      glob: "**/*.feature"
+      run: pixi run tools run lint-gherkin
+
+    - name: links
+      glob: "**/*.{md,mdx}"
+      run: pixi run tools run links
+
+    - name: lint-prose
+      glob: "{README.md,AGENTS.md,backlog/README.md}"
+      run: pixi run tools run lint-prose
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: typecheck-ts
+      glob: "{packages/**,apps/**,tsconfig*.json,package.json}"
+      run: pixi run tools run --each typecheck
+
+    - name: test-ts
+      glob: "{packages/**,apps/**,package.json,bun.lock}"
+      run: pixi run tools run test-ts
+
+    - name: rust-checks
+      glob: "{Cargo.toml,Cargo.lock,clippy.toml,deny.toml,rust/**,apps/web/**}"
+      group:
+        piped: true
+        jobs:
+          - name: lint-rust
+            run: pixi run -e rust tools run lint-rust
+          - name: test-rust
+            run: pixi run -e rust tools run test-rust
+          - name: deny-rust
+            run: pixi run -e rust tools run deny
