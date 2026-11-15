@@ -182,11 +182,6 @@ Run package.json script 'build' in packages/frontend/ui.
 Run package.json script 'test' in packages/frontend/ui.
 ### `pixi run tools run pkg ui typecheck` (`pkg.ui.typecheck`)
 Run package.json script 'typecheck' in packages/frontend/ui.
-### `pixi run tools run sandbox` (`sandbox`)
-Manage offline Pixi development environments and workflows via pixi-sandbox (plan, check, init, doctor, pack, restore).
-- Marks: setup, workflow
-- Requires: pixi-sandbox
-- Options: --action <string>
 ### `pixi run tools run skills` (`skills`)
 Manage coding-agent skills via the skills CLI (pass args after `-- --`).
 - Marks: workflow
