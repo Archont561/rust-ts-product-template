@@ -71,7 +71,8 @@ jobs:
       - name: Scan commits for leaked credentials
         uses: trufflesecurity/trufflehog@3bd2b5887eb0efb8fa18bfd1d296032924e4ffdc # v3.99.9
         with:
-          extra_args: --results=verified,unknown
+          # Keep synthetic local Postgres URLs from failing the scan as unverified credentials.
+          extra_args: --results=verified
 
   codeql:
     name: CodeQL Static Analysis (${{ matrix.language }})

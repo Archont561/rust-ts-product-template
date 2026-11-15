@@ -166,7 +166,7 @@ jobs:
           CHECK_RUN_ID: ${{ steps.validation.outputs.check_run_id }}
           REPAIRED_SHA: ${{ steps.commit.outputs.commit_hash }}
           HEAD_REF: ${{ github.head_ref }}
-          RELOCK_WORKFLOW: ".github/workflows/relock.yml"
+          RELOCK_WORKFLOW: "relock.yml"
           CI_WORKFLOW: "ci.yml"
           PUBLISHER_WORKFLOW: "publish-sandbox.yml"
         with:
