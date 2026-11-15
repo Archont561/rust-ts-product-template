@@ -19,7 +19,19 @@ export const deny = tool(
     if (args.online) {
       ctx.run(["cargo", "deny", "check"]);
     } else {
-      ctx.run(["cargo", "deny", "--offline", "check", "bans", "licenses", "sources"]);
+      // The offline Linux sandbox only ships Linux-target sources; the online security lane
+      // retains the full target matrix from deny.toml.
+      ctx.run([
+        "cargo",
+        "deny",
+        "--offline",
+        "--target",
+        "x86_64-unknown-linux-gnu",
+        "check",
+        "bans",
+        "licenses",
+        "sources",
+      ]);
     }
   },
 );
