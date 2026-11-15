@@ -9,12 +9,12 @@ members = [
   "rust/adapters/wasm",
   "rust/adapters/axum",
   "rust/adapters/tauri",
-]
-# Thin app composition roots carry target-specific native SDKs (WebKitGTK,
-# Android NDK, Xcode) and CLI/env wiring; keep them excluded from the default
-# portable workspace while they consume `rust/adapters/*` via path deps.
-exclude = [
   "apps/web",
+]
+# Native app composition roots carry target-specific SDKs (WebKitGTK, Android
+# NDK, Xcode) and remain excluded; the portable Axum web app stays in this
+# workspace so its locked third-party dependencies are tested and vendored.
+exclude = [
   "apps/desktop/src-tauri",
   "apps/mobile/src-tauri",
 ]
