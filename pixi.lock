@@ -2,13 +2,13 @@ version: 7
 platforms:
 - name: linux-64
   virtual-packages:
-  - __unix=0
+  - __unix=0=0
   - __linux=4.18
   - __glibc=2.28
   - __archspec=0=x86_64
 - name: osx-arm64
   virtual-packages:
-  - __unix=0
+  - __unix=0=0
   - __osx=13.0
   - __archspec=0=m1
 - name: win-64
@@ -794,7 +794,6 @@ packages:
 - conda: https://prefix.dev/archont561/archont561/linux-64/pixi-sandbox-0.9.0-ha35fb5c_0.conda
   sha256: 0fdfa22127b027d1d1e391fa91601d124125831a2576b7010166018df60856ba
   md5: 3ce749fd1eba2a30d483c9fc0dff9669
-  attestations_sha256: 4709f4894683046b662adfab66f27f3647432686af5e20e0a77d898eafdd47e4
   depends:
   - libgcc >=16
   - __glibc >=2.28,<3.0.a0
@@ -807,7 +806,6 @@ packages:
 - conda: https://prefix.dev/archont561/archont561/osx-arm64/pixi-sandbox-0.9.0-hea27dcd_0.conda
   sha256: b1d2900432e6ef7b23beeb1023773cb4aa439bc0f2f98eecd41712b682c719a4
   md5: 030833c6d575e46aea4d7a892f185663
-  attestations_sha256: 4150d49818e6b267beb6a8ee6746d824e7be0f40b8f4c6359ac2776dd12066da
   depends:
   - __osx >=13.0
   constrains:
@@ -819,7 +817,6 @@ packages:
 - conda: https://prefix.dev/archont561/archont561/win-64/pixi-sandbox-0.9.0-he01afda_0.conda
   sha256: 79c82180f3145d3a07cadf33fa96742b2b33bb22e5ad53869424e89110167925
   md5: fa4b04b550cbe106f5835449011504d2
-  attestations_sha256: 65aa43013ea02958e38482ecc06909e960e3b5c2c2cab1b34ff201da74d2d26e
   depends:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
