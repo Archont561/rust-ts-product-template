@@ -86,6 +86,9 @@ pub fn app_router() -> Router {
         .route("/api/openapi.json", get(|| async { Json(ApiDoc::openapi()) }))
 }
 
+// This binary is an app composition root: it reads process configuration and, in the
+// explicit OpenAPI-export mode, writes the generated spec to stdout for tooling to consume.
+#[allow(clippy::disallowed_macros, clippy::disallowed_methods)]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if std::env::args().any(|arg| arg == "--emit-openapi") {
