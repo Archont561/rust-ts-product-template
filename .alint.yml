@@ -238,7 +238,7 @@ rules:
     format: toml
     schema_path: .alint/schemas/rust-workspace-cargo.schema.json
     level: error
-    message: "Root Cargo.toml must enforce edition 2024, resolver 3, publish=false, unsafe_code=forbid, zero-panic Clippy denies, and excluded app binaries."
+    message: "Root Cargo.toml must enforce edition 2024, resolver 3, publish=false, unsafe_code=forbid, zero-panic Clippy denies, include the portable web app for complete Cargo vendoring, and exclude native SDK app binaries."
 
   - id: schema-rust-member-cargo
     kind: json_schema_passes

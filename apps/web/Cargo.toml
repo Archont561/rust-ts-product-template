@@ -11,9 +11,3 @@ product-adapter-axum = { path = "../../rust/adapters/axum" }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 utoipa = { version = "5", features = ["axum_extras"] }
-
-[profile.release]
-lto = "thin"
-codegen-units = 1
-strip = true
-panic = "abort"

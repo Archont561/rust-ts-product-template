@@ -1,6 +1,8 @@
 schema = 1
 branch_prefix = "sandbox"
 cargo_vendor = true
+# Override the upstream macOS ARM default rejected by the GitHub runner configuration.
+runners = { "osx-arm64" = "macos-15" }
 
 [budgets]
 max_blob_mib = 95
