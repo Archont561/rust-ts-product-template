@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/app-package.schema.json",
+  "title": "Application Shell package.json Policy",
+  "description": "Enforces @product/app-* naming, privacy, ESM mode, non-empty scripts, workspace:* links to shared packages, and isolation from other @product/app-* packages.",
+  "type": "object",
+  "required": ["name", "version", "private", "type", "scripts"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^@product/app-[a-z0-9-]+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$"
+    },
+    "private": {
+      "const": true
+    },
+    "type": {
+      "const": "module"
+    },
+    "scripts": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dependencies": {
+      "$ref": "#/$defs/appDepMap"
+    },
+    "devDependencies": {
+      "$ref": "#/$defs/appDepMap"
+    }
+  },
+  "$defs": {
+    "appDepMap": {
+      "type": "object",
+      "patternProperties": {
+        "^@product/app-": false,
+        "^@product/": {
+          "const": "workspace:*"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

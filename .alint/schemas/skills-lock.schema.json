@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/skills-lock.schema.json",
+  "title": "Coding-Agent skills-lock.json Integrity Policy",
+  "description": "Validates skills-lock.json structure, required baseline engineering skills, source fields, and SHA-256 computedHash digests.",
+  "type": "object",
+  "required": ["version", "skills"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "enum": [1, 2]
+    },
+    "skills": {
+      "type": "object",
+      "required": ["clean-code-principles", "refactor", "bdd-scenarios"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["source", "sourceType", "skillPath", "computedHash"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourceType": {
+            "enum": ["github", "git", "local", "npm", "url"]
+          },
+          "skillPath": {
+            "type": "string",
+            "pattern": "SKILL\\.md$"
+          },
+          "computedHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

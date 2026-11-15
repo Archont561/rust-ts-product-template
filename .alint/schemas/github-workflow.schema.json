@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/github-workflow.schema.json",
+  "title": "GitHub Actions Workflow Hardening Policy",
+  "description": "Enforces top-level workflow name, explicit least-privilege permissions, concurrency control, and explicit timeout-minutes on every job.",
+  "type": "object",
+  "required": ["name", "permissions", "concurrency", "jobs"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "contents": {
+          "enum": ["read", "none"]
+        }
+      },
+      "additionalProperties": {
+        "enum": ["read", "none"]
+      }
+    },
+    "concurrency": {
+      "type": "object",
+      "required": ["group", "cancel-in-progress"],
+      "properties": {
+        "group": { "type": "string", "minLength": 1 },
+        "cancel-in-progress": { "type": "boolean" }
+      }
+    },
+    "jobs": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "runs-on", "timeout-minutes", "steps"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "runs-on": { "type": "string", "minLength": 1 },
+          "timeout-minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 90
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    }
+  }
+}

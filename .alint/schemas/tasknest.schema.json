@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/tasknest.schema.json",
+  "title": "Tasknest 0.4.0 Workspace Configuration Policy",
+  "description": "Enforces Tasknest 0.4.0 config_version=1, root tools discovery, strict unknown-mark validation, declared [marks], and [skill] command routed through `pixi run tools`.",
+  "type": "object",
+  "required": ["tasknest", "discovery", "checks", "marks", "execution", "skill"],
+  "properties": {
+    "tasknest": {
+      "type": "object",
+      "required": ["config_version"],
+      "properties": {
+        "config_version": {
+          "const": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "discovery": {
+      "type": "object",
+      "required": ["roots"],
+      "properties": {
+        "workspaces": {
+          "type": "boolean"
+        },
+        "roots": {
+          "type": "array",
+          "minItems": 1,
+          "contains": {
+            "type": "object",
+            "required": ["path", "namespace", "project_root"],
+            "properties": {
+              "path": { "const": "tools" },
+              "namespace": { "const": "" },
+              "project_root": { "const": "." }
+            }
+          },
+          "items": {
+            "type": "object",
+            "required": ["path", "namespace", "project_root"],
+            "properties": {
+              "path": { "type": "string", "minLength": 1 },
+              "namespace": { "type": "string" },
+              "project_root": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "manifests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": { "type": "string", "minLength": 1 },
+              "namespace": { "type": "string" },
+              "runner": { "type": "string", "minLength": 1 },
+              "persistent_scripts": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "exclude_scripts": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "object",
+      "required": ["strict", "require_description", "unknown_marks"],
+      "properties": {
+        "strict": { "const": true },
+        "require_description": { "const": true },
+        "require_tests": { "type": "boolean" },
+        "require_features": { "type": "boolean" },
+        "unknown_marks": { "const": "error" }
+      },
+      "additionalProperties": false
+    },
+    "marks": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "execution": {
+      "type": "object",
+      "required": ["jobs"],
+      "properties": {
+        "jobs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "skill": {
+      "type": "object",
+      "required": ["output", "command"],
+      "properties": {
+        "output": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string",
+          "pattern": "^pixi run tools\\b"
+        },
+        "template": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

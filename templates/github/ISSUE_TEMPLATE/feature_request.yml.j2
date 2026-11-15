@@ -1,0 +1,59 @@
+# Generated file — do not edit by hand.
+# Source template : templates/github/ISSUE_TEMPLATE/feature_request.yml.j2
+# Regenerate with : pixi run tools run docs-sync --write
+name: Feature request
+description: Propose a new capability, surface improvement, or architecture change
+title: "[Feature]: "
+labels:
+  - enhancement
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the capability in platform-agnostic terms first (domain/contracts/services), then note which delivery shells expose it.
+
+  - type: dropdown
+    id: surfaces
+    attributes:
+      label: Target surfaces / layers
+      description: Which apps or shared layers does this proposal affect?
+      multiple: true
+      options:
+{% for area in issue_areas %}        - {{ area }}
+{% endfor %}    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What user or developer problem are you trying to solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior / contracts
+      description: Describe the desired behavior, wire/service contracts, or BDD scenarios.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional trade-offs or simpler approaches you evaluated.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: alignment
+    attributes:
+      label: Architecture alignment
+      options:
+        - label: Business logic stays transport-independent (`rust/crates/services` / `packages/application`)
+          required: false
+        - label: I checked existing issues and `backlog/` decisions before opening this request
+          required: true

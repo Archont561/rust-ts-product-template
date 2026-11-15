@@ -1,0 +1,31 @@
+# lychee 0.24+ link checker configuration
+# Offline checks run locally and in PR CI (`pixi run lint-links` / `tasknest run links`);
+# online external URL checks run via `pixi run lint-links-online` / `tasknest run links --online`.
+
+verbose = "warn"
+no_progress = true
+cache = false
+include_verbatim = false
+include_fragments = "full"
+format = "compact"
+extensions = ["md", "mdx", "html"]
+
+exclude_path = [
+  "(^|/)\\.pixi/",
+  "(^|/)node_modules/",
+  "(^|/)coverage/",
+  "(^|/)target/",
+  "(^|/)dist/",
+  "(^|/)\\.turbo/",
+  "(^|/)\\.tasknest/",
+]
+
+exclude = [
+  # Localhost / loopback dev endpoints
+  '^https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:[0-9]+)?(/|$)',
+  # Placeholder release & store URLs in scaffold downloads.json
+  '^https://github\.com/your-org/your-repo/',
+  '^https://apps\.apple\.com/app/id0000000000$',
+  '^https://chromewebstore\.google\.com/detail/product/placeholder$',
+  '^https://addons\.mozilla\.org/firefox/addon/product/$',
+]

@@ -1,0 +1,45 @@
+<!--
+  Generated file — do not edit by hand.
+
+  Source template : templates/github/PULL_REQUEST_TEMPLATE.md.j2
+  Regenerate with : pixi run tools run docs-sync --write
+  Verify in CI    : pixi run tools run docs-sync
+-->
+
+# Pull Request
+
+## Summary
+
+- What changed and why?
+- Related issue or `backlog/` task ID:
+
+## Affected Surfaces
+
+- [ ] `apps/desktop`
+- [ ] `apps/docs`
+- [ ] `apps/extension`
+- [ ] `apps/mobile`
+- [ ] `apps/web`
+- [ ] `apps/worker`
+- [ ] `rust/crates/*` or `rust/adapters/*`
+- [ ] `packages/*`
+- [ ] Tooling, CI, or documentation (`tools/`, `.alint/`, `templates/`, `.github/`)
+
+## Verification Checklist
+
+Run checks through the single `pixi run tools` entrypoint before requesting review:
+
+- [ ] `pixi run tools check` and `pixi run tools skill --check`
+- [ ] `pixi run tools run docs-sync` (regenerate with `--write` if templates or counts changed)
+- [ ] `pixi run tools run lint-repo` and `pixi run tools run test-policy`
+- [ ] `pixi run tools run lint-ts` and `pixi run tools run lint-md`
+- [ ] `pixi run tools run --each typecheck` and `pixi run tools run test-ts`
+- [ ] `pixi run -e rust tools run lint-rust` and `pixi run -e rust tools run test-rust` (when Rust changed)
+- [ ] `pixi run tools run links` and `pixi run tools run lint-prose` (when docs changed)
+
+## Architecture Guardrails
+
+- [ ] Contracts (`rust/crates/contracts`, `packages/contracts`) remain dependency-free.
+- [ ] Services (`rust/crates/services`) remain transport-independent; adapters stay thin.
+- [ ] TypeScript infrastructure (`packages/infrastructure/*`) remains injectable.
+- [ ] No extra tasks were added to `pixi.toml` or `"scripts"` to root `package.json`.

@@ -1,0 +1,82 @@
+# Local multi-service stack for `apps/web` (Rust Axum Alpine binary),
+# Neon / local Postgres, and `apps/worker` (Cloudflare workerd edge cache + proxy).
+#
+# Usage:
+#   Offline Postgres + Axum API:
+#     docker compose --profile local up --build
+#   Neon Local (ephemeral cloud branch) + Axum API:
+#     docker compose --profile neon up --build
+#   Full edge stack (Cloudflare Worker cache/KV + Axum API + offline Postgres):
+#     docker compose --profile local --profile edge up --build
+
+services:
+  # -------------------------------------------------------------------------
+  # Database option 1: 100% offline Postgres 17 for local dev & airlocked CI
+  # -------------------------------------------------------------------------
+  db-local:
+    image: postgres:17-alpine
+    profiles: ["local"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-product}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-product}
+      POSTGRES_DB: ${POSTGRES_DB:-product}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-product} -d ${POSTGRES_DB:-product}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # -------------------------------------------------------------------------
+  # Database option 2: Neon Local proxy (auto-creates/cleans ephemeral branch)
+  # Requires NEON_API_KEY and NEON_PROJECT_ID in .env
+  # -------------------------------------------------------------------------
+  db-neon:
+    image: neondatabase/neon_local:latest
+    profiles: ["neon"]
+    environment:
+      NEON_API_KEY: ${NEON_API_KEY:?Set NEON_API_KEY in .env for the neon profile}
+      NEON_PROJECT_ID: ${NEON_PROJECT_ID:?Set NEON_PROJECT_ID in .env for the neon profile}
+      PARENT_BRANCH_ID: ${NEON_PARENT_BRANCH_ID:-}
+      DELETE_BRANCH: ${NEON_DELETE_BRANCH:-true}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  # -------------------------------------------------------------------------
+  # Origin API: Pure-Rust Axum server running as a static binary in Alpine
+  # -------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    profiles: ["local", "neon", "edge"]
+    environment:
+      BIND_ADDR: 0.0.0.0:8080
+      DATABASE_URL: ${DATABASE_URL:-postgres://product:product@db-local:5432/product}
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+
+  # -------------------------------------------------------------------------
+  # Edge Worker: Local Cloudflare workerd (Cache API + KV + WASM + Neon client)
+  # sitting in front of `apps/web`
+  # -------------------------------------------------------------------------
+  worker:
+    image: oven/bun:1-alpine
+    profiles: ["edge"]
+    working_dir: /workspace/apps/worker
+    command: ["bun", "x", "wrangler", "dev", "--ip", "0.0.0.0", "--port", "8787"]
+    volumes:
+      - .:/workspace
+    environment:
+      ORIGIN_URL: http://web:8080
+      DATABASE_URL: ${DATABASE_URL:-postgres://product:product@db-local:5432/product}
+    ports:
+      - "${WORKER_PORT:-8787}:8787"
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:

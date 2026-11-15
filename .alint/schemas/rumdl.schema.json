@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/rumdl.schema.json",
+  "title": "Workspace .rumdl.toml policy",
+  "description": "Enforces GitHub-flavored Markdown defaults, Fumadocs MDX per-file flavor, gitignore awareness, and exclusion of generated/third-party skill Markdown.",
+  "type": "object",
+  "required": ["global", "per-file-flavor"],
+  "properties": {
+    "global": {
+      "type": "object",
+      "required": ["flavor", "respect-gitignore", "exclude"],
+      "properties": {
+        "flavor": {
+          "type": "string",
+          "enum": ["gfm", "standard"]
+        },
+        "line-length": {
+          "type": "integer",
+          "minimum": 80,
+          "maximum": 140
+        },
+        "respect-gitignore": {
+          "const": true
+        },
+        "cache": {
+          "type": "boolean"
+        },
+        "cache-dir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exclude": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "contains": { "const": ".agents/skills/**" }
+        },
+        "disable": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(MD[0-9]{3}|[a-z][a-z0-9-]+)$" }
+        },
+        "enable": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(MD[0-9]{3}|[a-z][a-z0-9-]+)$" }
+        },
+        "extend-enable": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(MD[0-9]{3}|[a-z][a-z0-9-]+)$" }
+        },
+        "extend-disable": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(MD[0-9]{3}|[a-z][a-z0-9-]+)$" }
+        }
+      }
+    },
+    "per-file-flavor": {
+      "type": "object",
+      "required": ["apps/docs/content/**/*.mdx"],
+      "properties": {
+        "apps/docs/content/**/*.mdx": {
+          "const": "mdx"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "standard",
+          "gfm",
+          "mkdocs",
+          "mdx",
+          "pandoc",
+          "quarto",
+          "obsidian",
+          "kramdown",
+          "azure_devops",
+          "myst",
+          "hugo",
+          "mdg",
+          "gh-aw"
+        ]
+      }
+    }
+  }
+}

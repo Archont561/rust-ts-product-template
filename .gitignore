@@ -1,0 +1,26 @@
+# Environments & caches
+.pixi/
+.rumdl_cache/
+node_modules/
+.turbo/
+.tasknest/
+
+# Coverage & build outputs
+coverage/
+**/dist/
+**/build/
+target/
+apps/web/target/
+apps/*/src-tauri/target/
+.svelte-kit/
+.wxt/
+.output/
+
+# OS, secrets & logs
+.env
+.env.*
+!.env.example
+.dev.vars
+.wrangler/
+.DS_Store
+*.log

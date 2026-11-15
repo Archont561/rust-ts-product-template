@@ -1,0 +1,24 @@
+{
+  "name": "product-monorepo",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "packages/frontend/*",
+    "packages/infrastructure/*",
+    "apps/*"
+  ],
+  "devDependencies": {
+    "@archont561/tasknest": "0.4.0",
+    "@biomejs/biome": "^2.6.8",
+    "@huggingface/jinja": "^0.5.13",
+    "@types/bun": "^1.4.4",
+    "@types/node": "^26.6.6",
+    "backlog.md": "^1.55.3",
+    "bunup": "^0.16.32",
+    "skills": "^1.8.1",
+    "typescript": "^7.0.2"
+  }
+}

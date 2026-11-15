@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/workspace-package.schema.json",
+  "title": "TypeScript Workspace Package package.json Policy",
+  "description": "Enforces naming, privacy, ESM exports, standard scripts, and workspace:* protocol on all internal TypeScript packages under packages/.",
+  "type": "object",
+  "required": ["name", "version", "private", "type", "exports", "scripts"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^@product/[a-z0-9-]+$",
+      "not": {
+        "pattern": "^@product/app-"
+      }
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$"
+    },
+    "private": {
+      "const": true
+    },
+    "type": {
+      "const": "module"
+    },
+    "exports": {
+      "type": "object",
+      "required": [".", "./package.json"],
+      "properties": {
+        ".": {
+          "type": "object",
+          "required": ["bun", "source", "types", "import"],
+          "properties": {
+            "bun": { "type": "string", "pattern": "^\\./src/" },
+            "source": { "type": "string", "pattern": "^\\./src/" },
+            "types": { "type": "string", "pattern": "^\\./dist/.*\\.d\\.ts$" },
+            "import": { "type": "string", "pattern": "^\\./dist/.*\\.js$" }
+          }
+        },
+        "./package.json": {
+          "const": "./package.json"
+        }
+      }
+    },
+    "scripts": {
+      "type": "object",
+      "required": ["build", "typecheck", "test"],
+      "properties": {
+        "build": { "type": "string", "minLength": 1 },
+        "typecheck": { "type": "string", "minLength": 1 },
+        "test": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dependencies": {
+      "$ref": "#/$defs/workspaceDepMap"
+    },
+    "devDependencies": {
+      "$ref": "#/$defs/workspaceDepMap"
+    },
+    "peerDependencies": {
+      "$ref": "#/$defs/workspaceDepMap"
+    }
+  },
+  "$defs": {
+    "workspaceDepMap": {
+      "type": "object",
+      "patternProperties": {
+        "^@product/app-": false,
+        "^@product/": {
+          "const": "workspace:*"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

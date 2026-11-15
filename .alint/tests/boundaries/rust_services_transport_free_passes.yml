@@ -1,0 +1,37 @@
+test_version: 1
+name: rust/crates/services importing domain and contracts passes
+tags: [check, boundaries, rust, passing]
+
+docs:
+  title: rust services crate stays transport-independent
+  case: pass
+  kind: import_gate
+
+given:
+  tree:
+    rust:
+      crates:
+        services:
+          src:
+            lib.rs: |
+              use product_contracts::GreetingResponse;
+              use product_domain::greet;
+              pub fn run(name: &str) -> GreetingResponse {
+                  let _ = (greet, name);
+                  todo!()
+              }
+  config: |
+    version: 1
+    rules:
+      - id: boundary-rust-services-no-transport-sdks
+        kind: import_gate
+        language: rust
+        paths: "rust/crates/services/src/**/*.rs"
+        forbid: "^(product_adapter_|axum|tauri|tauri_plugin_|wasm_bindgen|sqlx|rusqlite|tokio|reqwest)"
+        level: error
+
+when: [check]
+
+expect:
+  - exit: success
+    violations: []

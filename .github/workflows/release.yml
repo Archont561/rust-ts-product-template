@@ -1,0 +1,243 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and verify all release artifacts without publishing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Preflight Version & Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      publish: ${{ steps.mode.outputs.publish }}
+      version: ${{ steps.mode.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Pixi & Bun workspace
+        uses: ./.github/actions/setup
+        with:
+          environment: default
+
+      - name: Determine release mode and verify version parity
+        id: mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG_VERSION=$(pixi run bun -e 'console.log(JSON.parse(require("fs").readFileSync("package.json","utf8")).version)')
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+            if [ "${TAG_VERSION}" != "${PKG_VERSION}" ]; then
+              echo "Tag v${TAG_VERSION} does not match workspace version ${PKG_VERSION}." >&2
+              exit 1
+            fi
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "version=${PKG_VERSION}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run preflight policy, skill & TypeScript test gates
+        run: |
+          pixi run tools check
+          pixi run tools skill --check
+          pixi run tools run lint-repo
+          pixi run tools run lint-ts
+          pixi run tools run test-ts
+
+  web-image:
+    name: Build & Push Web Alpine Image (GHCR)
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Log in to GitHub Container Registry
+        if: ${{ needs.preflight.outputs.publish == 'true' }}
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/${{ github.repository }}/web
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push multi-arch Alpine image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ needs.preflight.outputs.publish == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  worker:
+    name: Deploy Cloudflare Edge Worker
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Pixi & Bun workspace
+        uses: ./.github/actions/setup
+        with:
+          environment: js
+
+      - name: Run Worker tests before deploy
+        run: pixi run -e js tools run test-ts
+
+      - name: Deploy Worker via Wrangler (tag releases with token)
+        if: ${{ needs.preflight.outputs.publish == 'true' && env.HAS_CF_TOKEN == 'true' }}
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        env:
+          HAS_CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/worker
+          command: deploy --env production
+
+  extension:
+    name: Build MV3 Browser Extensions
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Pixi & Bun workspace
+        uses: ./.github/actions/setup
+        with:
+          environment: js
+
+      - name: Build Chrome & Firefox MV3 extension archives
+        run: |
+          pixi run -e js tools run ext build --browser chrome --zip
+          pixi run -e js tools run ext build --browser firefox --zip
+
+      - name: Upload extension archives
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: extension-bundles
+          path: apps/extension/.output/*.zip
+          if-no-files-found: warn
+
+  desktop:
+    name: Build Desktop (${{ matrix.target }})
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: macos-aarch64
+          - os: ubuntu-24.04
+            target: linux-x86_64
+          - os: windows-latest
+            target: windows-x86_64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Tauri v2 native environment
+        uses: ./.github/actions/setup-tauri
+        with:
+          cache-key: tauri-${{ matrix.target }}
+
+      - name: Build Tauri v2 desktop bundle
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
+        with:
+          projectPath: apps/desktop
+          includeUpdaterJson: false
+
+      - name: Upload desktop bundles
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: desktop-${{ matrix.target }}
+          path: apps/desktop/src-tauri/target/release/bundle/**/*
+          if-no-files-found: warn
+
+  publish-release:
+    name: Publish GitHub Release
+    needs:
+      - preflight
+      - web-image
+      - extension
+      - desktop
+    if: ${{ needs.preflight.outputs.publish == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: release-artifacts
+
+      - name: Generate SHA256SUMS manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release-artifacts
+          find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+
+      - name: Publish GitHub Release with checksums
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
+        with:
+          generate_release_notes: true
+          files: |
+            release-artifacts/**/*
+            release-artifacts/SHA256SUMS

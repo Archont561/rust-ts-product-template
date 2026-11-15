@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/docker-compose.schema.json",
+  "title": "Docker Compose Multi-Service Stack Policy",
+  "description": "Enforces explicit Compose profiles on every service (preventing db-local/db-neon port 5432 collisions), healthcheck on db-local, and environment variable interpolation for Neon secrets.",
+  "type": "object",
+  "required": ["services"],
+  "properties": {
+    "services": {
+      "type": "object",
+      "required": ["db-local", "db-neon", "web", "worker"],
+      "properties": {
+        "db-local": {
+          "type": "object",
+          "required": ["image", "profiles", "healthcheck"],
+          "properties": {
+            "profiles": {
+              "type": "array",
+              "contains": { "const": "local" }
+            },
+            "healthcheck": {
+              "type": "object",
+              "required": ["test"]
+            }
+          }
+        },
+        "db-neon": {
+          "type": "object",
+          "required": ["image", "profiles", "environment"],
+          "properties": {
+            "profiles": {
+              "type": "array",
+              "contains": { "const": "neon" }
+            },
+            "environment": {
+              "type": "object",
+              "required": ["NEON_API_KEY", "NEON_PROJECT_ID"],
+              "properties": {
+                "NEON_API_KEY": {
+                  "type": "string",
+                  "pattern": "^\\$\\{NEON_API_KEY"
+                },
+                "NEON_PROJECT_ID": {
+                  "type": "string",
+                  "pattern": "^\\$\\{NEON_PROJECT_ID"
+                }
+              }
+            }
+          }
+        },
+        "web": {
+          "type": "object",
+          "required": ["build", "profiles"],
+          "properties": {
+            "profiles": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        "worker": {
+          "type": "object",
+          "required": ["image", "profiles", "depends_on"],
+          "properties": {
+            "profiles": {
+              "type": "array",
+              "contains": { "const": "edge" }
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["profiles"],
+        "properties": {
+          "profiles": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

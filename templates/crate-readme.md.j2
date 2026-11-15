@@ -1,0 +1,18 @@
+# `{{ name }}`
+
+{{ summary }}
+
+## What Belongs Here
+
+- Pure Rust types, logic, and traits scoped to `{{ name }}`.
+- Executable specifications in `features/*.feature` (linted by `gherlint`).
+- Integration tests in `tests/*.rs` (executed via `pixi run -e rust tools run test-rust`).
+
+## What Does NOT Belong Here
+
+- Transport or framework coupling outside this crate's declared architectural layer (enforced by `.alint.yml`).
+- `unsafe` blocks or panicking helpers (`unwrap`, `expect`, `panic!`, `todo!`) denied at workspace level in `Cargo.toml`.
+
+## Public Version Export
+
+`src/lib.rs` exports `pub const VERSION: &str = env!("CARGO_PKG_VERSION");` (enforced by `rust-members-export-version`).

@@ -1,0 +1,33 @@
+test_version: 1
+name: packages/domain may import @product/runtime-utils and local modules
+tags: [check, boundaries, typescript, passing]
+
+docs:
+  title: domain package stays a leaf above runtime-utils
+  case: pass
+  kind: import_gate
+
+given:
+  tree:
+    packages:
+      domain:
+        src:
+          index.ts: |
+            import { assertNever } from "@product/runtime-utils";
+            import { validateName } from "./rules";
+            export { assertNever, validateName };
+  config: |
+    version: 1
+    rules:
+      - id: boundary-domain-is-leaf
+        kind: import_gate
+        language: js
+        paths: "packages/domain/src/**/*.{ts,tsx}"
+        forbid: "^(@product/(contracts|application|infrastructure-|ui|features|testing|build-utils|app-)|@tauri-apps/|@wxt-dev/|@webext-core/|@neondatabase/|cloudflare:|node:|svelte(/|$))"
+        level: error
+
+when: [check]
+
+expect:
+  - exit: success
+    violations: []

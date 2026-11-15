@@ -1,0 +1,52 @@
+test_version: 1
+name: a Rust crate with src, tests, features/*.feature, and README passes
+tags: [check, layout, rust, passing]
+
+docs:
+  title: workspace Rust crates carry src, tests, features, and README
+  case: pass
+  kind: for_each_dir
+
+given:
+  tree:
+    rust:
+      crates:
+        domain:
+          Cargo.toml: "[package]\nname = \"product-domain\"\n"
+          README.md: "# product-domain\n"
+          src:
+            lib.rs: "pub const VERSION: &str = env!(\"CARGO_PKG_VERSION\");\n"
+          tests:
+            unit.rs: "#[test] fn ok() {}\n"
+          features:
+            greeting.feature: "Feature: Greeting\n"
+  config: |
+    version: 1
+    rules:
+      - id: rust-unit-layout
+        kind: for_each_dir
+        select:
+          - "rust/crates/*"
+        when_iter: 'iter.has_file("Cargo.toml")'
+        require:
+          - kind: dir_exists
+            paths: "{path}/src"
+          - kind: dir_exists
+            paths: "{path}/tests"
+          - kind: dir_exists
+            paths: "{path}/features"
+          - kind: dir_contains
+            select: "{path}/features"
+            require: ["*.feature"]
+          - kind: dir_contains
+            select: "{path}/tests"
+            require: ["*.rs"]
+          - kind: file_exists
+            paths: "{path}/README.md"
+        level: error
+
+when: [check]
+
+expect:
+  - exit: success
+    violations: []

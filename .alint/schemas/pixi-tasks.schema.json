@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://product.local/schemas/pixi-tasks.schema.json",
+  "title": "Pixi Single-Entrypoint Tasknest Policy",
+  "description": "Enforces that pixi.toml declares ONLY the single root `tools` task delegating to Tasknest, forbids any [feature.*.tasks] or [target.*.tasks] tables, and ensures every Pixi environment includes the `js` feature so `pixi run tools ...` works everywhere.",
+  "type": "object",
+  "required": ["workspace", "tasks", "environments"],
+  "properties": {
+    "tasks": {
+      "type": "object",
+      "required": ["tools"],
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "tasknest"
+            },
+            {
+              "type": "object",
+              "required": ["cmd"],
+              "properties": {
+                "cmd": {
+                  "type": "string",
+                  "pattern": "tasknest"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "not": {
+          "required": ["tasks"]
+        },
+        "properties": {
+          "target": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "not": {
+                "required": ["tasks"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "not": {
+          "required": ["tasks"]
+        }
+      }
+    },
+    "environments": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "array",
+            "contains": {
+              "const": "js"
+            }
+          },
+          {
+            "type": "object",
+            "required": ["features"],
+            "properties": {
+              "features": {
+                "type": "array",
+                "contains": {
+                  "const": "js"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
