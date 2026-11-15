@@ -26,14 +26,17 @@ This repository is a multi-platform **Rust + TypeScript (Svelte 5)** software pr
 
 ## Verification Commands
 
-Run all automation through `pixi run tools` from the repository root (`pixi install` first):
+Install Pixi, then bootstrap Bun dependencies with
+`pixi run -e default bun install --frozen-lockfile`. This installs Tasknest; all
+subsequent repository automation runs through `pixi run tools`:
 
 ```bash
 pixi run tools ls                          # List all root, app, and package Tasknest tasks
 pixi run tools check                       # Validate Tasknest graph, descriptions, and marks
 pixi run tools skill --check               # Verify .agents/skills/project-tools/SKILL.md is current
 pixi run tools run docs-sync               # Verify README.md and AGENTS.md match templates/*.j2
-pixi run tools run install                 # Install Bun workspace dependencies
+pixi run -e default bun install --frozen-lockfile # Bootstrap Bun dependencies
+pixi run tools run install                 # Re-run Bun dependency installation after bootstrap
 pixi run tools run hooks                   # Install lefthook pre-commit & pre-push Git hooks
 pixi run tools run hooks --action validate # Validate lefthook.yml syntax
 pixi run tools run sandbox --action check  # Verify pixi-sandbox generated workflows & scripts/restore.sh
