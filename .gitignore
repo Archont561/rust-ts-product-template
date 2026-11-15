@@ -12,6 +12,9 @@ coverage/
 target/
 apps/web/target/
 apps/*/src-tauri/target/
+apps/docs/.next/
+apps/docs/.source/
+apps/docs/out/
 .svelte-kit/
 .wxt/
 .output/
