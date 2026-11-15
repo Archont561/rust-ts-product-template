@@ -1,5 +1,5 @@
 name: "Setup Pixi & Bun Workspace"
-description: "Install a locked Pixi environment and bootstrap Bun workspace dependencies through `pixi run tools`."
+description: "Install a locked Pixi environment and bootstrap Bun workspace dependencies."
 
 inputs:
   environment:
@@ -7,7 +7,7 @@ inputs:
     required: false
     default: "default"
   install-bun:
-    description: "Whether to run `pixi run -e <env> tools run install` after Pixi setup."
+    description: "Whether to bootstrap Bun workspace dependencies directly after Pixi setup."
     required: false
     default: "true"
   pixi-version:
@@ -30,4 +30,5 @@ runs:
     - name: Install Bun workspace dependencies
       if: ${{ inputs.install-bun == 'true' }}
       shell: bash
-      run: pixi run -e "${{ inputs.environment }}" tools run install
+      # Bootstrap directly: Tasknest is installed by this step, so it cannot run the install task yet.
+      run: pixi run -e "${{ inputs.environment }}" bun install --frozen-lockfile

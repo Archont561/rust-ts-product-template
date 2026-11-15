@@ -108,12 +108,12 @@ Every runtime composes the same **transport-independent services** and **injecta
 
 ## Quick Start
 
-Install [Pixi](https://pixi.sh), then bootstrap and run **all** repository automation through the single `pixi run tools` entrypoint (backed by Tasknest and enforced by [`.alint/schemas/pixi-tasks.schema.json`](.alint/schemas/pixi-tasks.schema.json)):
+Install [Pixi](https://pixi.sh), bootstrap Bun dependencies (which installs Tasknest), then run repository automation through the single `pixi run tools` entrypoint, enforced by [`.alint/schemas/pixi-tasks.schema.json`](.alint/schemas/pixi-tasks.schema.json):
 
 ```bash
 # Install default toolchain (Bun, Biome, alint, rumdl, Vale, lychee, gherlint, lefthook, Tasknest)
 pixi install
-pixi run tools run install
+pixi run -e default bun install --frozen-lockfile # Bootstrap Bun before Tasknest is available
 pixi run tools run hooks
 
 # Run TypeScript tests, coverage, and static checks
