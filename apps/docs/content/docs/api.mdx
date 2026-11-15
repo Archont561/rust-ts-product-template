@@ -1,0 +1,18 @@
+---
+title: API Reference
+description: Typed OpenAPI endpoints served by apps/web (Axum + utoipa).
+---
+
+This page pairs with **`fumadocs-openapi`** to render endpoints directly from `apps/web`'s generated `openapi.json` (`pixi run tools run web openapi`).
+
+## `GET /api/hello`
+
+Returns a typed JSON greeting payload:
+
+```json
+{
+  "message": "Hello, World!",
+  "platform": "web-axum",
+  "version": "0.1.0"
+}
+```

@@ -1,0 +1,29 @@
+{
+  "name": "@product/app-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "dev:safari": "wxt -b safari",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "build:safari": "wxt build -b safari",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox"
+  },
+  "dependencies": {
+    "@product/application": "workspace:*",
+    "@product/contracts": "workspace:*",
+    "@product/domain": "workspace:*",
+    "@product/features": "workspace:*",
+    "@product/infrastructure-extension": "workspace:*",
+    "@product/infrastructure-http": "workspace:*",
+    "@product/infrastructure-memory": "workspace:*",
+    "@product/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@product/build-utils": "workspace:*"
+  }
+}
