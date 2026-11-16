@@ -13,7 +13,7 @@ platforms = ["linux-64", "osx-arm64", "win-64"]
 tools = "bun x --bun --no-install tasknest"
 
 # ---------------------------------------------------------------------------
-# Split features — dependencies only (no feature tasks; use `tools/*.ts`)
+# Split features — dependencies only (no feature tasks; use grouped modules under `tools/`)
 # ---------------------------------------------------------------------------
 
 [feature.js.dependencies]

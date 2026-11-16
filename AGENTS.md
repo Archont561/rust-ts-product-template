@@ -2,8 +2,8 @@
   Generated file — do not edit AGENTS.md by hand.
 
   Source template : templates/AGENTS.md.j2
-  Regenerate with : pixi run tools run docs-sync --write
-  Verify in CI    : pixi run tools run docs-sync
+  Regenerate with : pixi run tools run documentation sync --write
+  Verify in CI    : pixi run tools run documentation sync
 -->
 
 # Agent Instructions
@@ -13,16 +13,16 @@ This repository is a multi-platform **Rust + TypeScript (Svelte 5)** software pr
 ## Architecture & Boundaries
 
 - **Single automation entrypoint:** `pixi.toml` defines **only** the `tools` task (`bun x --bun --no-install tasknest`), enforced by `.alint/schemas/pixi-tasks.schema.json` via `alint`, and root `package.json` forbids `"scripts"` via `.alint/schemas/root-package.schema.json`. Run **all** repository and coding-agent automation through `pixi run tools ...` (`pixi run tools ls` or `.agents/skills/project-tools/SKILL.md`). Never add extra `[tasks]`/`[feature.*.tasks]` to `pixi.toml` or `"scripts"` to root `package.json`.
-- **Policy schemas & policy tests:** Structural invariants for manifests, configs, `skills-lock.json`, and release data are enforced offline by `alint` against 18 schemas under `.alint/schemas/*.schema.json` and regression-tested via `pixi run tools run test-policy` (8 declarative tests under `.alint/tests/` plus live checks against `.alint/schemas/`).
-- **Generated documentation & skill catalog:** Edit templates under `templates/` (`README.md.j2`, `AGENTS.md.j2`, `github/ISSUE_TEMPLATE/*.j2`, `github/PULL_REQUEST_TEMPLATE.md.j2`) and run `pixi run tools run docs-sync --write` instead of editing generated outputs directly. Regenerate `.agents/skills/project-tools/SKILL.md` with `pixi run tools skill --write` whenever tasks change.
-- **Coding-agent skills:** 7 installed project skills live in `.agents/skills/` (tracked in `skills-lock.json`): `bdd-scenarios`, `clean-code-principles`, `grill-me`, `project-tools`, `refactor`, `tasknest`, `tdd`. Manage or restore skills via `pixi run tools run skills -- -- list` or `pixi run tools run skills -- -- install`.
+- **Policy schemas & policy tests:** Structural invariants for manifests, configs, `skills-lock.json`, and release data are enforced offline by `alint` against 18 schemas under `.alint/schemas/*.schema.json` and regression-tested via `pixi run tools run testing test-policy` (8 declarative tests under `.alint/tests/` plus live checks against `.alint/schemas/`).
+- **Generated documentation & skill catalog:** Edit templates under `templates/` (`README.md.j2`, `AGENTS.md.j2`, `github/ISSUE_TEMPLATE/*.j2`, `github/PULL_REQUEST_TEMPLATE.md.j2`) and run `pixi run tools run documentation sync --write` instead of editing generated outputs directly. Regenerate `.agents/skills/project-tools/SKILL.md` with `pixi run tools skill --write` whenever tasks change.
+- **Coding-agent skills:** 7 installed project skills live in `.agents/skills/` (tracked in `skills-lock.json`): `bdd-scenarios`, `clean-code-principles`, `grill-me`, `project-tools`, `refactor`, `tasknest`, `tdd`. Manage or restore skills via `pixi run tools run workflow skills -- -- list` or `pixi run tools run workflow skills -- -- install`.
 - **Contracts stay dependency-free:** `rust/crates/contracts` and `packages/contracts` must not depend on services, application logic, infrastructure, UI, or platform SDKs.
 - **Services stay transport-independent:** Business logic and validation belong once in `rust/crates/services` (`ProductServices`). The transport adapters (`rust/adapters/axum`, `rust/adapters/tauri`, `rust/adapters/wasm`) only translate protocol payloads.
 - **Infrastructure stays injectable:** Every package under `packages/infrastructure/` accepts its low-level runtime primitive (`fetch`, `invoke`, `sendMessage`, lazy WASM loader) as a parameter and must never import sibling infrastructure, `@product/application`, `@product/ui`, or `@product/features`.
 - **Apps stay thin and isolated:** Delivery shells (`apps/web`, `apps/worker`, `apps/desktop`, `apps/mobile`, `apps/extension`, `apps/docs`) compose shared packages and adapters and never import another `@product/app-*`.
 - **Import prefixes (TS/Svelte):** Always use `@/` (package root), `@product/<pkg>`, or `./`. Never use parent traversal (`../`), `~/*`, or `#*`.
 - **Private by default:** Internal Rust crates inherit `publish.workspace = true` (`false`); internal TS packages and apps set `"private": true`.
-- **Work tracking:** Store tasks, specs, milestones, and ADRs offline in `backlog/` (`pixi run tools run backlog`). Do not create parallel tracking folders.
+- **Work tracking:** Store tasks, specs, milestones, and ADRs offline in `backlog/` (`pixi run tools run workflow backlog`). Do not create parallel tracking folders.
 
 ## Verification Commands
 
@@ -34,22 +34,22 @@ subsequent repository automation runs through `pixi run tools`:
 pixi run tools ls                          # List all root, app, and package Tasknest tasks
 pixi run tools check                       # Validate Tasknest graph, descriptions, and marks
 pixi run tools skill --check               # Verify .agents/skills/project-tools/SKILL.md is current
-pixi run tools run docs-sync               # Verify README.md and AGENTS.md match templates/*.j2
+pixi run tools run documentation sync               # Verify README.md and AGENTS.md match templates/*.j2
 pixi run -e default bun install --frozen-lockfile # Bootstrap Bun dependencies
-pixi run tools run install                 # Re-run Bun dependency installation after bootstrap
-pixi run tools run hooks                   # Install lefthook pre-commit & pre-push Git hooks
-pixi run tools run hooks --action validate # Validate lefthook.yml syntax
+pixi run tools run setup install                 # Re-run Bun dependency installation after bootstrap
+pixi run tools run workflow hooks                   # Install lefthook pre-commit & pre-push Git hooks
+pixi run tools run workflow hooks --action validate # Validate lefthook.yml syntax
 pixi run tools run --each typecheck        # Type-check all 13 workspace packages via Tasknest 0.4
-pixi run tools run lint-repo               # alint (presets, 18 JSON Schemas, architectural boundaries)
-pixi run tools run test-policy             # alint test .alint/tests + live real-schema regression checks
-pixi run tools run lint-ts                 # Biome formatting & scoped boundary lint
-pixi run tools run lint-md                 # rumdl Markdown & MDX lint (--fix to auto-fix)
-pixi run tools run test-ts                 # Bun workspace unit tests (--coverage for LCOV)
-pixi run tools run lint-gherkin            # Gherkin feature lint
-pixi run tools run links                   # Offline lychee link check (--online for remote)
-pixi run tools run lint-prose              # Vale prose check
-pixi run -e rust tools run lint-rust       # cargo clippy --workspace --all-targets -- -D warnings
-pixi run -e rust tools run test-rust       # cargo nextest run --workspace
-pixi run -e rust tools run deny            # Offline cargo-deny bans/licenses/sources
-pixi run -e rust tools run audit           # RustSec cargo-audit check
+pixi run tools run quality lint-repo               # alint (presets, 18 JSON Schemas, architectural boundaries)
+pixi run tools run testing test-policy             # alint test .alint/tests + live real-schema regression checks
+pixi run tools run quality lint-ts                 # Biome formatting & scoped boundary lint
+pixi run tools run quality lint-md                 # rumdl Markdown & MDX lint (--fix to auto-fix)
+pixi run tools run testing test-ts                 # Bun workspace unit tests (--coverage for LCOV)
+pixi run tools run quality lint-gherkin            # Gherkin feature lint
+pixi run tools run quality links                   # Offline lychee link check (--online for remote)
+pixi run tools run quality lint-prose              # Vale prose check
+pixi run -e rust tools run quality lint-rust       # cargo clippy --workspace --all-targets -- -D warnings
+pixi run -e rust tools run testing test-rust       # cargo nextest run --workspace
+pixi run -e rust tools run security deny            # Offline cargo-deny bans/licenses/sources
+pixi run -e rust tools run security audit           # RustSec cargo-audit check
 ```

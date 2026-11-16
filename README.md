@@ -2,8 +2,8 @@
   Generated file — do not edit README.md by hand.
 
   Source template : templates/README.md.j2
-  Regenerate with : pixi run tools run docs-sync --write
-  Verify in CI    : pixi run tools run docs-sync
+  Regenerate with : pixi run tools run documentation sync --write
+  Verify in CI    : pixi run tools run documentation sync
 -->
 
 # Product Monorepo Template (Rust + TypeScript + Svelte 5)
@@ -84,13 +84,13 @@ Every runtime composes the same **transport-independent services** and **injecta
 | [`pixi.toml`](pixi.toml), [`pixi.lock`](pixi.lock)                                                       | Reproducible cross-platform toolchain (`default`, `js`, `lint`, `docs`, `rust`, `full` environments)                                                                                                    |
 | [`package.json`](package.json), [`tsconfig.base.json`](tsconfig.base.json)                               | Bun workspace root and strict TypeScript config (`customConditions: ["source"]`)                                                                                                                        |
 | [`biome.json`](biome.json), [`.alint.yml`](.alint.yml)                                                   | Formatting, TS/Svelte linting, and bundled + schema + boundary repository rules                                                                                                                         |
-| [`.alint/`](.alint/schemas/pixi-tasks.schema.json) (`schemas/`, `tests/`)                                | 18 policy JSON Schemas enforced by `alint` + 8 declarative `alint test` specs and real-schema regression checks (`pixi run tools run test-policy`)                |
-| [`templates/`](templates/README.md.j2)                                                                   | Jinja templates for root `README.md`, `AGENTS.md`, `.github/` issue & PR templates, and unit README scaffolding (`crate`, `package`, `app`) rendered via `pixi run tools run docs-sync`                  |
+| [`.alint/`](.alint/schemas/pixi-tasks.schema.json) (`schemas/`, `tests/`)                                | 18 policy JSON Schemas enforced by `alint` + 8 declarative `alint test` specs and real-schema regression checks (`pixi run tools run testing test-policy`)                |
+| [`templates/`](templates/README.md.j2)                                                                   | Jinja templates for root `README.md`, `AGENTS.md`, `.github/` issue & PR templates, and unit README scaffolding (`crate`, `package`, `app`) rendered via `pixi run tools run documentation sync`                  |
 | [`pixi-sandbox.toml`](pixi-sandbox.toml), [`scripts/restore.sh`](scripts/restore.sh)                     | Airlocked Linux offline development bundle (`default`–`full` + vendored Cargo crates) and restore launcher                                                                                              |
 | [`.github/`](.github/workflows/ci.yml), [`renovate.json`](renovate.json), [`lefthook.yml`](lefthook.yml) | SHA-pinned CI/Pages/Release/Security/`pixi-sandbox` workflows, reusable `.github/actions/setup*` actions, Renovate config, and lefthook `pre-commit`/`pre-push` hooks                                   |
 | [`.agents/skills/`](.agents/skills/tasknest/SKILL.md), [`skills-lock.json`](skills-lock.json)            | 7 project coding-agent skills (`bdd-scenarios`, `clean-code-principles`, `grill-me`, `project-tools`, `refactor`, `tasknest`, `tdd`)                                                                                                                                        |
 | [`AGENTS.md`](AGENTS.md), [`.editorconfig`](.editorconfig), [`.gitattributes`](.gitattributes)           | Generated coding-agent instructions and cross-OS editor/line-ending normalization                                                                                                                       |
-| [`tasknest.toml`](tasknest.toml), `tools/`                                                               | Multi-root TypeScript task discovery across root and `apps/*/tools`                                                                                                                                     |
+| [`tasknest.toml`](tasknest.toml), `tools/`                                                               | Grouped TypeScript tasks in `tools/{security,quality,testing,setup,workflow,documentation}/` plus app task roots under `apps/*/tools`                                                                                                                                     |
 | [`.codecov.yml`](.codecov.yml), [`bunfig.toml`](bunfig.toml)                                             | Separate `rust` and `ts` LCOV coverage flags and Bun test configuration                                                                                                                                 |
 | [`.rumdl.toml`](.rumdl.toml), [`.vale.ini`](.vale.ini), [`lychee.toml`](lychee.toml)                     | Markdown/MDX linting (`rumdl`), prose linting (`vale`), and offline/online link verification (`lychee`)                                                                                                 |
 | [`rust/crates/domain`](rust/crates/domain/README.md)                                                     | Pure Rust domain entities, value objects, invariants, and errors                                                                                                                                        |
@@ -114,25 +114,25 @@ Install [Pixi](https://pixi.sh), bootstrap Bun dependencies (which installs Task
 # Install default toolchain (Bun, Biome, alint, rumdl, Vale, lychee, gherlint, lefthook, Tasknest)
 pixi install
 pixi run -e default bun install --frozen-lockfile # Bootstrap Bun before Tasknest is available
-pixi run tools run hooks
+pixi run tools run workflow hooks
 
 # Run TypeScript tests, coverage, and static checks
-pixi run tools run test-ts
-pixi run tools run test-ts --coverage
-pixi run tools run lint-ts
-pixi run tools run lint-md
-pixi run tools run lint-repo
-pixi run tools run test-policy
-pixi run tools run docs-sync
-pixi run tools run lint-gherkin
-pixi run tools run links
-pixi run tools run lint-prose
+pixi run tools run testing test-ts
+pixi run tools run testing test-ts --coverage
+pixi run tools run quality lint-ts
+pixi run tools run quality lint-md
+pixi run tools run quality lint-repo
+pixi run tools run testing test-policy
+pixi run tools run documentation sync
+pixi run tools run quality lint-gherkin
+pixi run tools run quality links
+pixi run tools run quality lint-prose
 
 # Run Rust checks, tests, and supply-chain verification
-pixi run -e rust tools run lint-rust
-pixi run -e rust tools run test-rust
-pixi run -e rust tools run deny
-pixi run -e rust tools run audit
+pixi run -e rust tools run quality lint-rust
+pixi run -e rust tools run testing test-rust
+pixi run -e rust tools run security deny
+pixi run -e rust tools run security audit
 ```
 
 ### Tasknest App & Package Commands
@@ -145,7 +145,7 @@ pixi run tools check
 pixi run tools skill --check            # Verify .agents/skills/project-tools/SKILL.md is up to date
 pixi run tools run --each typecheck     # Run `typecheck` across all 13 workspace packages
 pixi run tools run -p pkg.contracts test # Run package-scoped tests
-pixi run tools run docs-sync --write    # Regenerate README.md and AGENTS.md from templates/*.j2
+pixi run tools run documentation sync --write    # Regenerate README.md and AGENTS.md from templates/*.j2
 pixi run tools run web dev              # Run Rust Axum API server
 pixi run tools run web openapi          # Emit OpenAPI 3.1 JSON spec
 pixi run tools run web docker           # Build static Alpine binary image
@@ -165,8 +165,8 @@ pixi run tools run docs dev             # Run Fumadocs showcase & docs site
 1. **Rename identifiers:** Replace `@product/*` in `package.json` manifests, `product-*` in Rust `Cargo.toml` manifests, `product@example.com` in `apps/extension/wxt.config.ts`, and bundle identifiers in `apps/{desktop,mobile}/src-tauri/tauri.conf.json`.
 2. **Add domain & service operations:** Define request/response contracts in `rust/crates/contracts` and `packages/contracts`, implement logic once in `rust/crates/services`, and expose it through `rust/adapters/*` and `packages/application`.
 3. **Build shared Svelte 5 screens:** Place design primitives in `packages/frontend/ui` and reusable product flows in `packages/frontend/features`, injecting `ProductClient` from each app shell.
-4. **Update templated docs cleanly:** Edit `templates/README.md.j2` or `templates/AGENTS.md.j2` and run `pixi run tools run docs-sync --write`; scaffold new unit READMEs with `pixi run tools run docs-sync --scaffold crate|package|app --name <name> --output <path>`.
-5. **Keep guardrails green:** Run `pixi run tools run lint-repo`, `pixi run tools run test-policy`, `pixi run tools run lint-ts`, `pixi run tools run lint-md`, and `pixi run -e rust tools run lint-rust` before opening a PR so architectural boundaries stay enforced as the product grows.
+4. **Update templated docs cleanly:** Edit `templates/README.md.j2` or `templates/AGENTS.md.j2` and run `pixi run tools run documentation sync --write`; scaffold new unit READMEs with `pixi run tools run documentation sync --scaffold crate|package|app --name <name> --output <path>`.
+5. **Keep guardrails green:** Run `pixi run tools run quality lint-repo`, `pixi run tools run testing test-policy`, `pixi run tools run quality lint-ts`, `pixi run tools run quality lint-md`, and `pixi run -e rust tools run quality lint-rust` before opening a PR so architectural boundaries stay enforced as the product grows.
 
 ---
 

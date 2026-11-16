@@ -1,5 +1,5 @@
 # rumdl — fast Rust Markdown & MDX linter/formatter.
-# Run locally and in CI with `pixi run tools run lint-md` (or `--fix`).
+# Run locally and in CI with `pixi run tools run quality lint-md` (or `--fix`).
 
 [global]
 flavor = "gfm"

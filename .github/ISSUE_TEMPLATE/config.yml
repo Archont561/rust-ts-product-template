@@ -1,4 +1,4 @@
 # Generated file — do not edit by hand.
 # Source template : templates/github/ISSUE_TEMPLATE/config.yml.j2
-# Regenerate with : pixi run tools run docs-sync --write
+# Regenerate with : pixi run tools run documentation sync --write
 blank_issues_enabled: false

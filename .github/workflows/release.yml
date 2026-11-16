@@ -60,9 +60,9 @@ jobs:
         run: |
           pixi run tools check
           pixi run tools skill --check
-          pixi run tools run lint-repo
-          pixi run tools run lint-ts
-          pixi run tools run test-ts
+          pixi run tools run quality lint-repo
+          pixi run tools run quality lint-ts
+          pixi run tools run testing test-ts
 
   web-image:
     name: Build & Push Web Alpine Image (GHCR)
@@ -129,7 +129,7 @@ jobs:
           environment: js
 
       - name: Run Worker tests before deploy
-        run: pixi run -e js tools run test-ts
+        run: pixi run -e js tools run testing test-ts
 
       - name: Deploy Worker via Wrangler (tag releases with token)
         if: ${{ needs.preflight.outputs.publish == 'true' && env.HAS_CF_TOKEN == 'true' }}

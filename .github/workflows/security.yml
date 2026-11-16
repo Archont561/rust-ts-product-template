@@ -34,10 +34,10 @@ jobs:
           cache-key: security-rust
 
       - name: Run online cargo-deny checks (advisories, bans, licenses, sources)
-        run: pixi run -e rust tools run deny --online
+        run: pixi run -e rust tools run security deny --online
 
       - name: Run RustSec cargo-audit against Cargo.lock
-        run: pixi run -e rust tools run audit
+        run: pixi run -e rust tools run security audit
 
   js-dependencies:
     name: JavaScript / Bun Dependency Audit
@@ -55,7 +55,7 @@ jobs:
           environment: js
 
       - name: Audit Bun workspace dependencies (high+ severity)
-        run: pixi run -e js tools run audit-js --level high
+        run: pixi run -e js tools run security audit-js --level high
 
   secrets-scan:
     name: Secret Detection (TruffleHog)

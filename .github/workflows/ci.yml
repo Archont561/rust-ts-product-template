@@ -34,28 +34,28 @@ jobs:
         run: |
           pixi run tools check
           pixi run tools skill --check
-          pixi run tools run docs-sync
+          pixi run tools run documentation sync
 
       - name: Run repository policies, schemas & boundary checks (alint)
-        run: pixi run tools run lint-repo
+        run: pixi run tools run quality lint-repo
 
       - name: Run declarative alint policy test suite (.alint/tests)
-        run: pixi run tools run test-policy
+        run: pixi run tools run testing test-policy
 
       - name: Run Biome formatting & TS/Svelte boundary checks
-        run: pixi run tools run lint-ts
+        run: pixi run tools run quality lint-ts
 
       - name: Lint Markdown & MDX files (rumdl)
-        run: pixi run tools run lint-md
+        run: pixi run tools run quality lint-md
 
       - name: Lint Gherkin .feature specifications
-        run: pixi run tools run lint-gherkin
+        run: pixi run tools run quality lint-gherkin
 
       - name: Verify offline documentation links (lychee)
-        run: pixi run tools run links
+        run: pixi run tools run quality links
 
       - name: Lint top-level documentation prose (Vale)
-        run: pixi run tools run lint-prose
+        run: pixi run tools run quality lint-prose
 
   typescript:
     name: TypeScript Typecheck & Tests
@@ -76,7 +76,7 @@ jobs:
         run: pixi run -e js tools run --each typecheck
 
       - name: Run TypeScript unit tests with LCOV coverage
-        run: pixi run -e js tools run test-ts --coverage
+        run: pixi run -e js tools run testing test-ts --coverage
 
       - name: Upload TypeScript coverage to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
@@ -103,16 +103,16 @@ jobs:
           cache-key: ci-rust-workspace
 
       - name: Run cargo clippy (-D warnings)
-        run: pixi run -e rust tools run lint-rust
+        run: pixi run -e rust tools run quality lint-rust
 
       - name: Run cargo nextest workspace suite
-        run: pixi run -e rust tools run test-rust
+        run: pixi run -e rust tools run testing test-rust
 
       - name: Verify Rust licenses, bans & sources (cargo-deny)
-        run: pixi run -e rust tools run deny
+        run: pixi run -e rust tools run security deny
 
       - name: Audit Cargo.lock advisories (cargo-audit)
-        run: pixi run -e rust tools run audit
+        run: pixi run -e rust tools run security audit
 
   web-docker:
     name: Web Alpine Container Smoke Build

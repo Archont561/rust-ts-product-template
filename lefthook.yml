@@ -1,24 +1,24 @@
 # Lefthook v2 Git hooks — all checks route through the single `pixi run tools` entrypoint.
-# Install locally with: `pixi run tools run hooks`
-# Validate syntax with: `pixi run tools run hooks --action validate`
+# Install locally with: `pixi run tools run workflow hooks`
+# Validate syntax with: `pixi run tools run workflow hooks --action validate`
 
 pre-commit:
   parallel: true
   jobs:
     - name: lint-ts
       glob: "**/*.{ts,tsx,js,jsx,mjs,cjs,svelte,json,jsonc,css}"
-      run: pixi run tools run lint-ts
+      run: pixi run tools run quality lint-ts
 
     - name: lint-md
       glob: "**/*.{md,mdx}"
-      run: pixi run tools run lint-md
+      run: pixi run tools run quality lint-md
 
     - name: lint-repo
-      run: pixi run tools run lint-repo
+      run: pixi run tools run quality lint-repo
 
     - name: test-policy
       glob: "{.alint.yml,.alint/**}"
-      run: pixi run tools run test-policy
+      run: pixi run tools run testing test-policy
 
     - name: tasknest-sync
       glob: "{tasknest.toml,tools/**,apps/*/tools/**,.agents/skills/project-tools/SKILL.md}"
@@ -32,19 +32,19 @@ pre-commit:
 
     - name: docs-sync
       glob: "{templates/**,README.md,AGENTS.md,.github/ISSUE_TEMPLATE/**,.github/PULL_REQUEST_TEMPLATE.md,.alint/schemas/**,.alint/tests/**,package.json,Cargo.toml}"
-      run: pixi run tools run docs-sync
+      run: pixi run tools run documentation sync
 
     - name: lint-gherkin
       glob: "**/*.feature"
-      run: pixi run tools run lint-gherkin
+      run: pixi run tools run quality lint-gherkin
 
     - name: links
       glob: "**/*.{md,mdx}"
-      run: pixi run tools run links
+      run: pixi run tools run quality links
 
     - name: lint-prose
       glob: "{README.md,AGENTS.md,backlog/README.md}"
-      run: pixi run tools run lint-prose
+      run: pixi run tools run quality lint-prose
 
 pre-push:
   parallel: true
@@ -55,7 +55,7 @@ pre-push:
 
     - name: test-ts
       glob: "{packages/**,apps/**,package.json,bun.lock}"
-      run: pixi run tools run test-ts
+      run: pixi run tools run testing test-ts
 
     - name: rust-checks
       glob: "{Cargo.toml,Cargo.lock,clippy.toml,deny.toml,rust/**,apps/web/**}"
@@ -63,8 +63,8 @@ pre-push:
         piped: true
         jobs:
           - name: lint-rust
-            run: pixi run -e rust tools run lint-rust
+            run: pixi run -e rust tools run quality lint-rust
           - name: test-rust
-            run: pixi run -e rust tools run test-rust
+            run: pixi run -e rust tools run testing test-rust
           - name: deny-rust
-            run: pixi run -e rust tools run deny
+            run: pixi run -e rust tools run security deny

@@ -4,33 +4,10 @@
 Run repository tasks with `pixi run tools`.
 
 ## Tasks
-### `pixi run tools run audit` (`audit`)
-Audit Cargo.lock against the RustSec Advisory Database with cargo-audit.
-- Marks: security
-- Requires: cargo-audit
-### `pixi run tools run audit-js` (`audit-js`)
-Audit Bun workspace dependencies for security advisories with `bun audit`.
-- Marks: security
-- Requires: bun
-- Options: --level <string>
-### `pixi run tools run backlog` (`backlog`)
-Run offline Backlog.md CLI commands (pass subcommands/flags after `-- --`).
-- Marks: workflow
-- Requires: bun
-### `pixi run tools run deny` (`deny`)
-Run cargo-deny supply-chain checks (offline bans/licenses/sources by default).
-- Marks: lint, security
-- Requires: cargo-deny
-- Options: --online <boolean>
 ### `pixi run tools run desktop dev` (`desktop.dev`)
 Launch the Tauri v2 desktop app in dev mode (apps/desktop).
 - Marks: dev
 - Persistent: true
-### `pixi run tools run docs-sync` (`docs-sync`)
-Render or verify README.md, AGENTS.md, and .github/ issue & PR templates from templates/*.j2.
-- Marks: docs, fast, offline
-- Requires: bun
-- Options: --write <boolean>, --scaffold <string>, --name <string>, --output <string>
 ### `pixi run tools run docs build` (`docs.build`)
 Build the static Fumadocs showcase and documentation site into apps/docs/out.
 - Marks: build, docs
@@ -39,6 +16,11 @@ Build the static Fumadocs showcase and documentation site into apps/docs/out.
 Run the Fumadocs showcase and documentation site (apps/docs).
 - Marks: dev
 - Persistent: true
+### `pixi run tools run documentation sync` (`documentation.sync`)
+Render or verify README.md, AGENTS.md, and .github/ issue & PR templates from templates/*.j2.
+- Marks: docs, fast, offline
+- Requires: bun
+- Options: --write <boolean>, --scaffold <string>, --name <string>, --output <string>
 ### `pixi run tools run ext build` (`ext.build`)
 Build or zip the WXT MV3 browser extension for Chrome, Firefox, or Safari.
 - Marks: build, release
@@ -54,51 +36,6 @@ Build the Safari MV3 bundle with WXT and wrap it into an Xcode app via xcrun saf
 - Marks: build, release
 - Requires: xcrun
 - Options: --projectLocation <string>
-### `pixi run tools run hello` (`hello`)
-Verify the Tasknest TypeScript runner works in this monorepo.
-- Marks: fast, offline
-- Options: --name <string>
-### `pixi run tools run hooks` (`hooks`)
-Install, uninstall, validate, or run Lefthook Git hooks (pre-commit / pre-push).
-- Marks: setup, workflow
-- Requires: lefthook
-- Options: --action <string>, --hook <string>
-### `pixi run tools run install` (`install`)
-Install Bun workspace dependencies from bun.lock.
-- Marks: setup
-- Requires: bun
-### `pixi run tools run links` (`links`)
-Check Markdown, MDX, and HTML links with lychee (offline by default).
-- Marks: lint, fast
-- Requires: lychee
-- Options: --online <boolean>
-### `pixi run tools run lint-gherkin` (`lint-gherkin`)
-Lint Gherkin .feature specifications across rust/ and packages/.
-- Marks: lint, fast
-- Requires: gherlint
-### `pixi run tools run lint-md` (`lint-md`)
-Lint and optionally auto-fix Markdown and MDX files with rumdl.
-- Marks: lint, docs, fast
-- Requires: rumdl
-- Options: --fix <boolean>
-### `pixi run tools run lint-prose` (`lint-prose`)
-Lint top-level Markdown documentation prose with Vale.
-- Marks: lint, docs
-- Requires: vale
-### `pixi run tools run lint-repo` (`lint-repo`)
-Check repository structure, schemas, and architectural boundaries with alint.
-- Marks: lint, fast
-- Requires: alint
-- Options: --fix <boolean>
-### `pixi run tools run lint-rust` (`lint-rust`)
-Run cargo clippy across the Rust workspace with -D warnings.
-- Marks: lint, rust
-- Requires: cargo
-### `pixi run tools run lint-ts` (`lint-ts`)
-Run Biome formatting and boundary checks across TypeScript/Svelte/JSON files.
-- Marks: lint, fast
-- Requires: bun
-- Options: --fix <boolean>
 ### `pixi run tools run mobile dev` (`mobile.dev`)
 Launch the Tauri v2 mobile app on Android or iOS (apps/mobile).
 - Marks: dev
@@ -182,20 +119,66 @@ Run package.json script 'build' in packages/frontend/ui.
 Run package.json script 'test' in packages/frontend/ui.
 ### `pixi run tools run pkg ui typecheck` (`pkg.ui.typecheck`)
 Run package.json script 'typecheck' in packages/frontend/ui.
-### `pixi run tools run skills` (`skills`)
-Manage coding-agent skills via the skills CLI (pass args after `-- --`).
-- Marks: workflow
+### `pixi run tools run quality links` (`quality.links`)
+Check Markdown, MDX, and HTML links with lychee (offline by default).
+- Marks: lint, fast
+- Requires: lychee
+- Options: --online <boolean>
+### `pixi run tools run quality lint-gherkin` (`quality.lint-gherkin`)
+Lint Gherkin .feature specifications across rust/ and packages/.
+- Marks: lint, fast
+- Requires: gherlint
+### `pixi run tools run quality lint-md` (`quality.lint-md`)
+Lint and optionally auto-fix Markdown and MDX files with rumdl.
+- Marks: lint, docs, fast
+- Requires: rumdl
+- Options: --fix <boolean>
+### `pixi run tools run quality lint-prose` (`quality.lint-prose`)
+Lint top-level Markdown documentation prose with Vale.
+- Marks: lint, docs
+- Requires: vale
+### `pixi run tools run quality lint-repo` (`quality.lint-repo`)
+Check repository structure, schemas, and architectural boundaries with alint.
+- Marks: lint, fast
+- Requires: alint
+- Options: --fix <boolean>
+### `pixi run tools run quality lint-rust` (`quality.lint-rust`)
+Run cargo clippy across the Rust workspace with -D warnings.
+- Marks: lint, rust
+- Requires: cargo
+### `pixi run tools run quality lint-ts` (`quality.lint-ts`)
+Run Biome formatting and boundary checks across TypeScript/Svelte/JSON files.
+- Marks: lint, fast
 - Requires: bun
-### `pixi run tools run test-policy` (`test-policy`)
+- Options: --fix <boolean>
+### `pixi run tools run security audit` (`security.audit`)
+Audit Cargo.lock against the RustSec Advisory Database with cargo-audit.
+- Marks: security
+- Requires: cargo-audit
+### `pixi run tools run security audit-js` (`security.audit-js`)
+Audit Bun workspace dependencies for security advisories with `bun audit`.
+- Marks: security
+- Requires: bun
+- Options: --level <string>
+### `pixi run tools run security deny` (`security.deny`)
+Run cargo-deny supply-chain checks (offline bans/licenses/sources by default).
+- Marks: lint, security
+- Requires: cargo-deny
+- Options: --online <boolean>
+### `pixi run tools run setup install` (`setup.install`)
+Install Bun workspace dependencies from bun.lock.
+- Marks: setup
+- Requires: bun
+### `pixi run tools run testing test-policy` (`testing.test-policy`)
 Run declarative alint policy tests (.alint/tests) and real-schema regression checks (.alint/schemas).
 - Marks: lint, test, fast
 - Requires: alint
 - Options: --tag <string>, --filter <string>
-### `pixi run tools run test-rust` (`test-rust`)
+### `pixi run tools run testing test-rust` (`testing.test-rust`)
 Run Rust workspace tests with cargo-nextest.
 - Marks: test, rust
 - Requires: cargo-nextest
-### `pixi run tools run test-ts` (`test-ts`)
+### `pixi run tools run testing test-ts` (`testing.test-ts`)
 Run Bun workspace unit tests (with optional LCOV coverage).
 - Marks: test, fast
 - Requires: bun
@@ -222,3 +205,20 @@ Deploy the Cloudflare Worker with Wrangler (apps/worker).
 Run the Cloudflare Worker locally with Wrangler (apps/worker).
 - Marks: dev
 - Persistent: true
+### `pixi run tools run workflow backlog` (`workflow.backlog`)
+Run offline Backlog.md CLI commands (pass subcommands/flags after `-- --`).
+- Marks: workflow
+- Requires: bun
+### `pixi run tools run workflow hello` (`workflow.hello`)
+Verify the Tasknest TypeScript runner works in this monorepo.
+- Marks: fast, offline
+- Options: --name <string>
+### `pixi run tools run workflow hooks` (`workflow.hooks`)
+Install, uninstall, validate, or run Lefthook Git hooks (pre-commit / pre-push).
+- Marks: setup, workflow
+- Requires: lefthook
+- Options: --action <string>, --hook <string>
+### `pixi run tools run workflow skills` (`workflow.skills`)
+Manage coding-agent skills via the skills CLI (pass args after `-- --`).
+- Marks: workflow
+- Requires: bun

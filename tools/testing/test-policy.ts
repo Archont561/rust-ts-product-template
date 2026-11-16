@@ -27,7 +27,8 @@ const REAL_SCHEMA_CASES: SchemaMutationCase[] = [
   {
     ruleId: "schema-lefthook-config",
     targetFile: "lefthook.yml",
-    mutate: (content) => content.replace("run: pixi run tools run lint-repo", "run: bun test"),
+    mutate: (content) =>
+      content.replace("run: pixi run tools run quality lint-repo", "run: bun test"),
   },
   {
     ruleId: "schema-rumdl-config",
