@@ -1,10 +1,4 @@
-<!--
-  Generated file — do not edit by hand.
-
-  Source template : templates/github/PULL_REQUEST_TEMPLATE.md.j2
-  Regenerate with : pixi run tools run documentation sync --write
-  Verify in CI    : pixi run tools run documentation sync
--->
+<!-- generated from templates/github/PULL_REQUEST_TEMPLATE.md.j2 — do not edit by hand; regenerate with `pixi run tools run documentation sync --write` -->
 
 # Pull Request
 

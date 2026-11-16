@@ -1,6 +1,4 @@
-# Generated file — do not edit by hand.
-# Source template : templates/github/ISSUE_TEMPLATE/feature_request.yml.j2
-# Regenerate with : pixi run tools run documentation sync --write
+# generated from templates/github/ISSUE_TEMPLATE/feature_request.yml.j2 — do not edit by hand; regenerate with `pixi run tools run documentation sync --write`
 name: Feature request
 description: Propose a new capability, surface improvement, or architecture change
 title: "[Feature]: "

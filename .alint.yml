@@ -171,6 +171,41 @@ rules:
     level: error
     message: "AGENTS.md line 1 must be an HTML comment naming its source template (`<!-- generated from templates/AGENTS.md.j2 ... -->`); edit the template and run `pixi run tools run documentation sync --write` instead."
 
+  - id: require-pr-template-generated-marker
+    kind: file_header
+    paths: .github/PULL_REQUEST_TEMPLATE.md
+    lines: 1
+    pattern: '^<!-- generated from templates/github/PULL_REQUEST_TEMPLATE\.md\.j2\b[^\n]*-->\s*$'
+    level: error
+    message: ".github/PULL_REQUEST_TEMPLATE.md line 1 must be an HTML comment naming its source template (`<!-- generated from templates/github/PULL_REQUEST_TEMPLATE.md.j2 ... -->`); edit the template and run `pixi run tools run documentation sync --write` instead."
+
+  # GitHub Issue Forms are YAML, where an HTML comment is a parse error
+  # ("mapping values are not allowed in this context"), so the same marker uses
+  # a `#` comment instead.
+  - id: require-bug-report-template-generated-marker
+    kind: file_header
+    paths: .github/ISSUE_TEMPLATE/bug_report.yml
+    lines: 1
+    pattern: '^# generated from templates/github/ISSUE_TEMPLATE/bug_report\.yml\.j2\b[^\n]*\s*$'
+    level: error
+    message: ".github/ISSUE_TEMPLATE/bug_report.yml line 1 must be a YAML comment naming its source template (`# generated from templates/github/ISSUE_TEMPLATE/bug_report.yml.j2 ...`); edit the template and run `pixi run tools run documentation sync --write` instead."
+
+  - id: require-feature-request-template-generated-marker
+    kind: file_header
+    paths: .github/ISSUE_TEMPLATE/feature_request.yml
+    lines: 1
+    pattern: '^# generated from templates/github/ISSUE_TEMPLATE/feature_request\.yml\.j2\b[^\n]*\s*$'
+    level: error
+    message: ".github/ISSUE_TEMPLATE/feature_request.yml line 1 must be a YAML comment naming its source template (`# generated from templates/github/ISSUE_TEMPLATE/feature_request.yml.j2 ...`); edit the template and run `pixi run tools run documentation sync --write` instead."
+
+  - id: require-issue-config-template-generated-marker
+    kind: file_header
+    paths: .github/ISSUE_TEMPLATE/config.yml
+    lines: 1
+    pattern: '^# generated from templates/github/ISSUE_TEMPLATE/config\.yml\.j2\b[^\n]*\s*$'
+    level: error
+    message: ".github/ISSUE_TEMPLATE/config.yml line 1 must be a YAML comment naming its source template (`# generated from templates/github/ISSUE_TEMPLATE/config.yml.j2 ...`); edit the template and run `pixi run tools run documentation sync --write` instead."
+
   - id: require-github-issue-template-sources
     kind: dir_contains
     select: templates/github/ISSUE_TEMPLATE

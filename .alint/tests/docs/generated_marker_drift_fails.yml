@@ -3,7 +3,7 @@ name: generated docs without a source-template marker fail closed
 tags: [check, docs, generated-marker, failing]
 
 docs:
-  title: a hand-edited README.md and an AGENTS.md naming the wrong template both fail
+  title: hand-written banners, copy-pasted template names, and HTML comments in YAML all fail
   case: fail
   kind: file_header
 
@@ -16,11 +16,31 @@ given:
       -->
 
       # Product Monorepo Template
-    # Copy-pasted marker: names the other template.
+    # Copy-pasted marker: names the sibling template.
     AGENTS.md: |
       <!-- generated from templates/README.md.j2 -->
 
       # Agent Instructions
+    .github:
+      # Still the old multi-line banner instead of the pinned single line.
+      PULL_REQUEST_TEMPLATE.md: |
+        <!--
+          Source template : templates/github/PULL_REQUEST_TEMPLATE.md.j2
+        -->
+
+        # Pull Request
+      ISSUE_TEMPLATE:
+        # HTML comment in YAML: parses as a scalar, so the marker is lost.
+        bug_report.yml: |
+          <!-- generated from templates/github/ISSUE_TEMPLATE/bug_report.yml.j2 -->
+          name: Bug report
+        # The one correct file: must not be reported.
+        feature_request.yml: |
+          # generated from templates/github/ISSUE_TEMPLATE/feature_request.yml.j2
+          name: Feature request
+        # Marker deleted outright.
+        config.yml: |
+          blank_issues_enabled: false
   config: |
     version: 1
     rules:
@@ -36,6 +56,30 @@ given:
         lines: 1
         pattern: '^<!-- generated from templates/AGENTS\.md\.j2\b[^\n]*-->\s*$'
         level: error
+      - id: require-pr-template-generated-marker
+        kind: file_header
+        paths: .github/PULL_REQUEST_TEMPLATE.md
+        lines: 1
+        pattern: '^<!-- generated from templates/github/PULL_REQUEST_TEMPLATE\.md\.j2\b[^\n]*-->\s*$'
+        level: error
+      - id: require-bug-report-template-generated-marker
+        kind: file_header
+        paths: .github/ISSUE_TEMPLATE/bug_report.yml
+        lines: 1
+        pattern: '^# generated from templates/github/ISSUE_TEMPLATE/bug_report\.yml\.j2\b[^\n]*\s*$'
+        level: error
+      - id: require-feature-request-template-generated-marker
+        kind: file_header
+        paths: .github/ISSUE_TEMPLATE/feature_request.yml
+        lines: 1
+        pattern: '^# generated from templates/github/ISSUE_TEMPLATE/feature_request\.yml\.j2\b[^\n]*\s*$'
+        level: error
+      - id: require-issue-config-template-generated-marker
+        kind: file_header
+        paths: .github/ISSUE_TEMPLATE/config.yml
+        lines: 1
+        pattern: '^# generated from templates/github/ISSUE_TEMPLATE/config\.yml\.j2\b[^\n]*\s*$'
+        level: error
 
 when: [check]
 
@@ -44,3 +88,6 @@ expect:
     violations:
       - { rule: require-readme-generated-marker, level: error }
       - { rule: require-agents-generated-marker, level: error }
+      - { rule: require-pr-template-generated-marker, level: error }
+      - { rule: require-bug-report-template-generated-marker, level: error }
+      - { rule: require-issue-config-template-generated-marker, level: error }
