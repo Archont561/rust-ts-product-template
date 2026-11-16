@@ -1,0 +1,40 @@
+test_version: 1
+name: generated docs whose first line names their source template pass
+tags: [check, docs, generated-marker, passing]
+
+docs:
+  title: README.md and AGENTS.md advertise the template they are generated from
+  case: pass
+  kind: file_header
+
+given:
+  tree:
+    README.md: |
+      <!-- generated from templates/README.md.j2 — do not edit by hand; regenerate with `pixi run tools run documentation sync --write` -->
+
+      # Product Monorepo Template
+    AGENTS.md: |
+      <!-- generated from templates/AGENTS.md.j2 — do not edit by hand; regenerate with `pixi run tools run documentation sync --write` -->
+
+      # Agent Instructions
+  config: |
+    version: 1
+    rules:
+      - id: require-readme-generated-marker
+        kind: file_header
+        paths: README.md
+        lines: 1
+        pattern: '^<!-- generated from templates/README\.md\.j2\b[^\n]*-->\s*$'
+        level: error
+      - id: require-agents-generated-marker
+        kind: file_header
+        paths: AGENTS.md
+        lines: 1
+        pattern: '^<!-- generated from templates/AGENTS\.md\.j2\b[^\n]*-->\s*$'
+        level: error
+
+when: [check]
+
+expect:
+  - exit: success
+    violations: []

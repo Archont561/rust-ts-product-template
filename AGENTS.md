@@ -1,10 +1,4 @@
-<!--
-  Generated file — do not edit AGENTS.md by hand.
-
-  Source template : templates/AGENTS.md.j2
-  Regenerate with : pixi run tools run documentation sync --write
-  Verify in CI    : pixi run tools run documentation sync
--->
+<!-- generated from templates/AGENTS.md.j2 — do not edit by hand; regenerate with `pixi run tools run documentation sync --write` -->
 
 # Agent Instructions
 
@@ -13,8 +7,8 @@ This repository is a multi-platform **Rust + TypeScript (Svelte 5)** software pr
 ## Architecture & Boundaries
 
 - **Single automation entrypoint:** `pixi.toml` defines **only** the `tools` task (`bun x --bun --no-install tasknest`), enforced by `.alint/schemas/pixi-tasks.schema.json` via `alint`, and root `package.json` forbids `"scripts"` via `.alint/schemas/root-package.schema.json`. Run **all** repository and coding-agent automation through `pixi run tools ...` (`pixi run tools ls`). Never add extra `[tasks]`/`[feature.*.tasks]` to `pixi.toml` or `"scripts"` to root `package.json`.
-- **Policy schemas & policy tests:** Structural invariants for manifests, configs, `skills-lock.json`, and release data are enforced offline by `alint` against 18 schemas under `.alint/schemas/*.schema.json` and regression-tested via `pixi run tools run testing test-policy` (8 declarative tests under `.alint/tests/` plus live checks against `.alint/schemas/`).
-- **Generated documentation:** Edit templates under `templates/` (`README.md.j2`, `AGENTS.md.j2`, `github/ISSUE_TEMPLATE/*.j2`, `github/PULL_REQUEST_TEMPLATE.md.j2`) and run `pixi run tools run documentation sync --write` instead of editing generated outputs directly.
+- **Policy schemas & policy tests:** Structural invariants for manifests, configs, `skills-lock.json`, and release data are enforced offline by `alint` against 18 schemas under `.alint/schemas/*.schema.json` and regression-tested via `pixi run tools run testing test-policy` (10 declarative tests under `.alint/tests/` plus live checks against `.alint/schemas/`).
+- **Generated documentation:** Edit templates under `templates/` (`README.md.j2`, `AGENTS.md.j2`, `github/ISSUE_TEMPLATE/*.j2`, `github/PULL_REQUEST_TEMPLATE.md.j2`) and run `pixi run tools run documentation sync --write` instead of editing generated outputs directly. `README.md` and `AGENTS.md` must start with an HTML comment naming their source template (`<!-- generated from templates/<name>.j2 ... -->`), enforced by the `require-readme-generated-marker` and `require-agents-generated-marker` alint rules, while `pixi run tools run documentation sync` fails closed on any content drift.
 - **Coding-agent skills:** 6 installed project skills live in `.agents/skills/` (tracked in `skills-lock.json`): `bdd-scenarios`, `clean-code-principles`, `grill-me`, `refactor`, `tasknest`, `tdd`. Manage or restore skills via `pixi run tools run workflow skills -- -- list` or `pixi run tools run workflow skills -- -- install`.
 - **Contracts stay dependency-free:** `rust/crates/contracts` and `packages/contracts` must not depend on services, application logic, infrastructure, UI, or platform SDKs.
 - **Services stay transport-independent:** Business logic and validation belong once in `rust/crates/services` (`ProductServices`). The transport adapters (`rust/adapters/axum`, `rust/adapters/tauri`, `rust/adapters/wasm`) only translate protocol payloads.

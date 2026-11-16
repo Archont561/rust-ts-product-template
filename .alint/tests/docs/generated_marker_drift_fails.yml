@@ -1,0 +1,46 @@
+test_version: 1
+name: generated docs without a source-template marker fail closed
+tags: [check, docs, generated-marker, failing]
+
+docs:
+  title: a hand-edited README.md and an AGENTS.md naming the wrong template both fail
+  case: fail
+  kind: file_header
+
+given:
+  tree:
+    # Drifted by hand: the old prose banner no longer names the source template.
+    README.md: |
+      <!--
+        Generated file — do not edit README.md by hand.
+      -->
+
+      # Product Monorepo Template
+    # Copy-pasted marker: names the other template.
+    AGENTS.md: |
+      <!-- generated from templates/README.md.j2 -->
+
+      # Agent Instructions
+  config: |
+    version: 1
+    rules:
+      - id: require-readme-generated-marker
+        kind: file_header
+        paths: README.md
+        lines: 1
+        pattern: '^<!-- generated from templates/README\.md\.j2\b[^\n]*-->\s*$'
+        level: error
+      - id: require-agents-generated-marker
+        kind: file_header
+        paths: AGENTS.md
+        lines: 1
+        pattern: '^<!-- generated from templates/AGENTS\.md\.j2\b[^\n]*-->\s*$'
+        level: error
+
+when: [check]
+
+expect:
+  - exit: policy_failure
+    violations:
+      - { rule: require-readme-generated-marker, level: error }
+      - { rule: require-agents-generated-marker, level: error }
