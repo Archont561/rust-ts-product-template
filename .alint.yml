@@ -153,6 +153,24 @@ rules:
     level: error
     message: "Jinja documentation templates (README.md.j2, AGENTS.md.j2, crate/package/app-readme.md.j2) must exist under templates/."
 
+  # Generated docs must advertise their source template so hand edits are
+  # obvious and `pixi run tools run documentation sync` drift stays detectable.
+  - id: require-readme-generated-marker
+    kind: file_header
+    paths: README.md
+    lines: 1
+    pattern: '^<!-- generated from templates/README\.md\.j2\b[^\n]*-->\s*$'
+    level: error
+    message: "README.md line 1 must be an HTML comment naming its source template (`<!-- generated from templates/README.md.j2 ... -->`); edit the template and run `pixi run tools run documentation sync --write` instead."
+
+  - id: require-agents-generated-marker
+    kind: file_header
+    paths: AGENTS.md
+    lines: 1
+    pattern: '^<!-- generated from templates/AGENTS\.md\.j2\b[^\n]*-->\s*$'
+    level: error
+    message: "AGENTS.md line 1 must be an HTML comment naming its source template (`<!-- generated from templates/AGENTS.md.j2 ... -->`); edit the template and run `pixi run tools run documentation sync --write` instead."
+
   - id: require-github-issue-template-sources
     kind: dir_contains
     select: templates/github/ISSUE_TEMPLATE

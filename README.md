@@ -1,10 +1,4 @@
-<!--
-  Generated file — do not edit README.md by hand.
-
-  Source template : templates/README.md.j2
-  Regenerate with : pixi run tools run documentation sync --write
-  Verify in CI    : pixi run tools run documentation sync
--->
+<!-- generated from templates/README.md.j2 — do not edit by hand; regenerate with `pixi run tools run documentation sync --write` -->
 
 # Product Monorepo Template (Rust + TypeScript + Svelte 5)
 
@@ -84,7 +78,7 @@ Every runtime composes the same **transport-independent services** and **injecta
 | [`pixi.toml`](pixi.toml), [`pixi.lock`](pixi.lock)                                                       | Reproducible cross-platform toolchain (`default`, `js`, `lint`, `docs`, `rust`, `full` environments)                                                                                                    |
 | [`package.json`](package.json), [`tsconfig.base.json`](tsconfig.base.json)                               | Bun workspace root and strict TypeScript config (`customConditions: ["source"]`)                                                                                                                        |
 | [`biome.json`](biome.json), [`.alint.yml`](.alint.yml)                                                   | Formatting, TS/Svelte linting, and bundled + schema + boundary repository rules                                                                                                                         |
-| [`.alint/`](.alint/schemas/pixi-tasks.schema.json) (`schemas/`, `tests/`)                                | 18 policy JSON Schemas enforced by `alint` + 8 declarative `alint test` specs and real-schema regression checks (`pixi run tools run testing test-policy`)                |
+| [`.alint/`](.alint/schemas/pixi-tasks.schema.json) (`schemas/`, `tests/`)                                | 18 policy JSON Schemas enforced by `alint` + 10 declarative `alint test` specs and real-schema regression checks (`pixi run tools run testing test-policy`)                |
 | [`templates/`](templates/README.md.j2)                                                                   | Jinja templates for root `README.md`, `AGENTS.md`, `.github/` issue & PR templates, and unit README scaffolding (`crate`, `package`, `app`) rendered via `pixi run tools run documentation sync`                  |
 | [`pixi-sandbox.toml`](pixi-sandbox.toml), [`scripts/restore.sh`](scripts/restore.sh)                     | Airlocked Linux offline development bundle (`default`–`full` + vendored Cargo crates) and restore launcher                                                                                              |
 | [`.github/`](.github/workflows/ci.yml), [`renovate.json`](renovate.json), [`lefthook.yml`](lefthook.yml) | SHA-pinned CI/Pages/Release/Security/`pixi-sandbox` workflows, reusable `.github/actions/setup*` actions, Renovate config, and lefthook `pre-commit`/`pre-push` hooks                                   |
