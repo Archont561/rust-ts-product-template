@@ -51,7 +51,7 @@ pixi run -e rust tools run security audit           # RustSec cargo-audit check
 
 When a pull request is requested, open it from the repository PR template — never from a blank description:
 
-- Use `.github/PULL_REQUEST_TEMPLATE.md`. GitHub applies it automatically in the web UI; from the CLI pass `gh pr create --template PULL_REQUEST_TEMPLATE.md`.
+- Use `.github/PULL_REQUEST_TEMPLATE.md` as the description. GitHub pre-fills it in the web UI; from the CLI pass it as the body — `gh pr create --body-file .github/PULL_REQUEST_TEMPLATE.md`, or `--template PULL_REQUEST_TEMPLATE.md` on `gh` builds that have that flag (gh 2.23 does not) — and then fill every section in.
 - Fill in **Summary** (what changed and why, plus the related issue or `backlog/` task ID) and tick only the **Affected Surfaces** boxes that actually changed.
 - Work through the **Verification Checklist** by actually running the listed `pixi run tools` commands. Leave a box unticked with a one-line reason rather than claiming a check that did not run, and say plainly in the description what could not be verified.
 - Re-check the **Architecture Guardrails**. If one must be relaxed, change the corresponding `.alint.yml` rule in the same pull request and explain why in the description.
