@@ -88,7 +88,7 @@ Every runtime composes the same **transport-independent services** and **injecta
 | [`templates/`](templates/README.md.j2)                                                                   | Jinja templates for root `README.md`, `AGENTS.md`, `.github/` issue & PR templates, and unit README scaffolding (`crate`, `package`, `app`) rendered via `pixi run tools run documentation sync`                  |
 | [`pixi-sandbox.toml`](pixi-sandbox.toml), [`scripts/restore.sh`](scripts/restore.sh)                     | Airlocked Linux offline development bundle (`default`–`full` + vendored Cargo crates) and restore launcher                                                                                              |
 | [`.github/`](.github/workflows/ci.yml), [`renovate.json`](renovate.json), [`lefthook.yml`](lefthook.yml) | SHA-pinned CI/Pages/Release/Security/`pixi-sandbox` workflows, reusable `.github/actions/setup*` actions, Renovate config, and lefthook `pre-commit`/`pre-push` hooks                                   |
-| [`.agents/skills/`](.agents/skills/tasknest/SKILL.md), [`skills-lock.json`](skills-lock.json)            | 7 project coding-agent skills (`bdd-scenarios`, `clean-code-principles`, `grill-me`, `project-tools`, `refactor`, `tasknest`, `tdd`)                                                                                                                                        |
+| [`.agents/skills/`](.agents/skills/tasknest/SKILL.md), [`skills-lock.json`](skills-lock.json)            | 6 project coding-agent skills (`bdd-scenarios`, `clean-code-principles`, `grill-me`, `refactor`, `tasknest`, `tdd`)                                                                                                                                        |
 | [`AGENTS.md`](AGENTS.md), [`.editorconfig`](.editorconfig), [`.gitattributes`](.gitattributes)           | Generated coding-agent instructions and cross-OS editor/line-ending normalization                                                                                                                       |
 | [`tasknest.toml`](tasknest.toml), `tools/`                                                               | Grouped TypeScript tasks in `tools/{security,quality,testing,setup,workflow,documentation}/` plus app task roots under `apps/*/tools`                                                                                                                                     |
 | [`.codecov.yml`](.codecov.yml), [`bunfig.toml`](bunfig.toml)                                             | Separate `rust` and `ts` LCOV coverage flags and Bun test configuration                                                                                                                                 |
@@ -137,12 +137,11 @@ pixi run -e rust tools run security audit
 
 ### Tasknest App & Package Commands
 
-All root, per-app, and manifest-backed package workflows are registered in [`tasknest.toml`](tasknest.toml) (Tasknest `0.4.0`, strict marks + persistent dev servers + generated agent skill) and invoked via `pixi run tools`:
+All root, per-app, and manifest-backed package workflows are registered in [`tasknest.toml`](tasknest.toml) (Tasknest `0.4.0`, strict marks + persistent dev servers) and invoked via `pixi run tools`:
 
 ```bash
 pixi run tools ls
 pixi run tools check
-pixi run tools skill --check            # Verify .agents/skills/project-tools/SKILL.md is up to date
 pixi run tools run --each typecheck     # Run `typecheck` across all 13 workspace packages
 pixi run tools run -p pkg.contracts test # Run package-scoped tests
 pixi run tools run documentation sync --write    # Regenerate README.md and AGENTS.md from templates/*.j2
