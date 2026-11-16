@@ -465,12 +465,6 @@ rules:
     level: error
     message: "Backlog configuration backlog/config.yml is required."
 
-  - id: require-tools-hello
-    kind: file_exists
-    paths: tools/workflow/hello.ts
-    level: error
-    message: "Starter Tasknest task tools/workflow/hello.ts is required."
-
   # --- Hygiene: no placeholder files or build artifacts committed ---------
   - id: forbid-placeholder-files
     kind: file_absent
