@@ -256,7 +256,7 @@ rules:
     format: toml
     schema_path: .alint/schemas/tasknest.schema.json
     level: error
-    message: "tasknest.toml must follow .alint/schemas/tasknest.schema.json (config_version=1, root tools discovery, strict unknown_marks=error, declared [marks], and [skill] routed via `pixi run tools`)."
+    message: "tasknest.toml must follow .alint/schemas/tasknest.schema.json (config_version=1, root tools discovery, strict unknown_marks=error, declared [marks]; no [skill] section — the generated project-tools skill was dropped in favour of .agents/skills/tasknest/SKILL.md)."
 
   - id: schema-docs-downloads
     kind: json_schema_passes
@@ -411,12 +411,6 @@ rules:
     level: error
     message: "Every coding-agent skill directory under .agents/skills/* must define SKILL.md."
 
-  - id: require-project-tools-skill
-    kind: file_exists
-    paths: .agents/skills/project-tools/SKILL.md
-    level: error
-    message: "Generated Tasknest skill .agents/skills/project-tools/SKILL.md is required."
-
   - id: require-tasknest-skill
     kind: file_exists
     paths: .agents/skills/tasknest/SKILL.md
@@ -473,9 +467,9 @@ rules:
 
   - id: require-tools-hello
     kind: file_exists
-    paths: tools/hello.ts
+    paths: tools/workflow/hello.ts
     level: error
-    message: "Starter Tasknest task tools/hello.ts is required."
+    message: "Starter Tasknest task tools/workflow/hello.ts is required."
 
   # --- Hygiene: no placeholder files or build artifacts committed ---------
   - id: forbid-placeholder-files
