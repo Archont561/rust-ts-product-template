@@ -207,7 +207,7 @@ export const docsSync = tool(
 
     if (drifted.length > 0) {
       throw new Error(
-        `Generated docs are out of date (${drifted.join(", ")}). Run: pixi run tools run docs-sync --write`,
+        `Generated docs are out of date (${drifted.join(", ")}). Run: pixi run tools run documentation sync --write`,
       );
     }
   },

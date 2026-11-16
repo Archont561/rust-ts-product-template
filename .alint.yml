@@ -1,6 +1,6 @@
 # alint — declarative repository layout, version-export, and import-boundary rules.
 #
-# Run locally and in CI with `pixi run tools run lint-repo`.
+# Run locally and in CI with `pixi run tools run quality lint-repo`.
 # Every workspace unit (Rust crate/adapter or TS package) is identified by its
 # manifest (`Cargo.toml` or `package.json`), so grouping folders like
 # `packages/frontend` and `packages/infrastructure` are naturally skipped.

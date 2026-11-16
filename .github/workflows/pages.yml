@@ -39,7 +39,7 @@ jobs:
           environment: docs
 
       - name: Verify docs download manifest & repository policies
-        run: pixi run -e docs tools run lint-repo
+        run: pixi run -e docs tools run quality lint-repo
 
       - name: Build static Fumadocs export (apps/docs/out)
         run: pixi run -e docs tools run docs build
