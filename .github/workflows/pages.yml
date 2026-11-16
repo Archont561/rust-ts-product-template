@@ -23,8 +23,50 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Probed first, before any Pixi solve or docs build: this repository is a template,
+  # so clones that never enable Pages should skip cleanly instead of failing the
+  # `Configure GitHub Pages` step with "Get Pages site failed ... Not Found".
+  preflight:
+    name: Check GitHub Pages Enablement
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pages: read
+    outputs:
+      enabled: ${{ steps.detect.outputs.enabled }}
+    steps:
+      - name: Query the GitHub Pages API
+        id: detect
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages")"
+
+          case "${status}" in
+            200)
+              echo "enabled=true" >> "${GITHUB_OUTPUT}"
+              echo "GitHub Pages is enabled; continuing with the build and deploy."
+              ;;
+            404)
+              echo "enabled=false" >> "${GITHUB_OUTPUT}"
+              echo "::notice title=GitHub Pages not enabled::GET /repos/${GITHUB_REPOSITORY}/pages returned 404, so this repository has no Pages site configured. Skipping the Fumadocs build and deploy. Enable Pages under Settings -> Pages (source: GitHub Actions) to publish."
+              ;;
+            *)
+              # A 403 here means the token lacks `pages: read`, not that Pages is off.
+              # Failing loudly beats silently skipping a deploy on a permissions typo.
+              echo "::error::Could not determine GitHub Pages status: GET /repos/${GITHUB_REPOSITORY}/pages returned HTTP ${status}. Refusing to guess; check that this job grants 'pages: read'."
+              exit 1
+              ;;
+          esac
+
   build:
     name: Build Fumadocs Static Site
+    needs: preflight
+    if: ${{ needs.preflight.outputs.enabled == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
