@@ -137,12 +137,11 @@ pixi run -e rust tools run security audit
 
 ### Tasknest App & Package Commands
 
-All root, per-app, and manifest-backed package workflows are registered in [`tasknest.toml`](tasknest.toml) (Tasknest `0.4.0`, strict marks + persistent dev servers + generated agent skill) and invoked via `pixi run tools`:
+All root, per-app, and manifest-backed package workflows are registered in [`tasknest.toml`](tasknest.toml) (Tasknest `0.4.0`, strict marks + persistent dev servers) and invoked via `pixi run tools`:
 
 ```bash
 pixi run tools ls
 pixi run tools check
-pixi run tools skill --check            # Verify .agents/skills/project-tools/SKILL.md is up to date
 pixi run tools run --each typecheck     # Run `typecheck` across all {{ ts_package_count }} workspace packages
 pixi run tools run -p pkg.contracts test # Run package-scoped tests
 pixi run tools run documentation sync --write    # Regenerate README.md and AGENTS.md from templates/*.j2

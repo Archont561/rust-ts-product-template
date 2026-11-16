@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://product.local/schemas/tasknest.schema.json",
   "title": "Tasknest 0.4.0 Workspace Configuration Policy",
-  "description": "Enforces Tasknest 0.4.0 config_version=1, root tools discovery, strict unknown-mark validation, declared [marks], and [skill] command routed through `pixi run tools`.",
+  "description": "Enforces Tasknest 0.4.0 config_version=1, root tools discovery, strict task descriptions, and declared [marks].",
   "type": "object",
-  "required": ["tasknest", "discovery", "checks", "marks", "execution", "skill"],
+  "required": ["tasknest", "discovery", "checks", "marks", "execution"],
   "properties": {
     "tasknest": {
       "type": "object",
@@ -97,25 +97,6 @@
         "jobs": {
           "type": "integer",
           "minimum": 1
-        }
-      },
-      "additionalProperties": false
-    },
-    "skill": {
-      "type": "object",
-      "required": ["output", "command"],
-      "properties": {
-        "output": {
-          "type": "string",
-          "minLength": 1
-        },
-        "command": {
-          "type": "string",
-          "pattern": "^pixi run tools\\b"
-        },
-        "template": {
-          "type": "string",
-          "minLength": 1
         }
       },
       "additionalProperties": false

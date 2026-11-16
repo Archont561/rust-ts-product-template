@@ -82,7 +82,3 @@ codegen = "Generated contract, OpenAPI, or artifact emitter"
 
 [execution]
 jobs = 1
-
-[skill]
-output = ".agents/skills/project-tools/SKILL.md"
-command = "pixi run tools"

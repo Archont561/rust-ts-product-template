@@ -1,6 +1,6 @@
 ---
 name: tasknest
-description: "Author, validate, and execute repository automation with Tasknest 0.4.0 via the single `pixi run tools` entrypoint. Use when adding or modifying tasks in `tools/<group>/*.ts`, `apps/*/tools/*.ts`, or `tasknest.toml`, running `--each` / `-p` / `--mark` selectors, or regenerating `.agents/skills/project-tools/SKILL.md`."
+description: "Author, validate, and execute repository automation with Tasknest 0.4.0 via the single `pixi run tools` entrypoint. Use when adding or modifying tasks in `tools/<group>/*.ts`, `apps/*/tools/*.ts`, or `tasknest.toml`, running `--each` / `-p` / `--mark` selectors."
 license: MIT
 ---
 
@@ -14,7 +14,6 @@ This repository routes **all** human and coding-agent automation through a singl
 2. **Never add `"scripts"` to the root `package.json`.** Root-level workflows belong in `tools/<group>/*.ts`.
 3. **Every task must declare a non-empty `description` and only registered `[marks]`** from `tasknest.toml` (`[checks] strict = true`, `require_description = true`, `unknown_marks = "error"`).
 4. **Mark long-running servers/watchers with `persistent: true`** (never combine `persistent: true` with `cache: true`).
-5. **Keep the generated catalog in sync:** after adding, renaming, or changing any task, run `pixi run tools skill --write` and verify with `pixi run tools skill --check`.
 
 ## Running Tasks
 
@@ -80,8 +79,6 @@ export const example = tool(
 
 ```bash
 pixi run tools check
-pixi run tools skill --write
-pixi run tools skill --check
 pixi run tools run quality lint-repo
 pixi run tools run quality lint-ts
 ```

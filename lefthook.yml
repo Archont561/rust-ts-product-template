@@ -21,14 +21,8 @@ pre-commit:
       run: pixi run tools run testing test-policy
 
     - name: tasknest-sync
-      glob: "{tasknest.toml,tools/**,apps/*/tools/**,.agents/skills/project-tools/SKILL.md}"
-      group:
-        piped: true
-        jobs:
-          - name: tasknest-check
-            run: pixi run tools check
-          - name: tasknest-skill-check
-            run: pixi run tools skill --check
+      glob: "{tasknest.toml,tools/**,apps/*/tools/**}"
+      run: pixi run tools check
 
     - name: docs-sync
       glob: "{templates/**,README.md,AGENTS.md,.github/ISSUE_TEMPLATE/**,.github/PULL_REQUEST_TEMPLATE.md,.alint/schemas/**,.alint/tests/**,package.json,Cargo.toml}"

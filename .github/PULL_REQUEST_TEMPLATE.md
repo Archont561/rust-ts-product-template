@@ -29,7 +29,7 @@
 
 Run checks through the single `pixi run tools` entrypoint before requesting review:
 
-- [ ] `pixi run tools check` and `pixi run tools skill --check`
+- [ ] `pixi run tools check`
 - [ ] `pixi run tools run documentation sync` (regenerate with `--write` if templates or counts changed)
 - [ ] `pixi run tools run quality lint-repo` and `pixi run tools run testing test-policy`
 - [ ] `pixi run tools run quality lint-ts` and `pixi run tools run quality lint-md`

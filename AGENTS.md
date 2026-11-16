@@ -12,10 +12,10 @@ This repository is a multi-platform **Rust + TypeScript (Svelte 5)** software pr
 
 ## Architecture & Boundaries
 
-- **Single automation entrypoint:** `pixi.toml` defines **only** the `tools` task (`bun x --bun --no-install tasknest`), enforced by `.alint/schemas/pixi-tasks.schema.json` via `alint`, and root `package.json` forbids `"scripts"` via `.alint/schemas/root-package.schema.json`. Run **all** repository and coding-agent automation through `pixi run tools ...` (`pixi run tools ls` or `.agents/skills/project-tools/SKILL.md`). Never add extra `[tasks]`/`[feature.*.tasks]` to `pixi.toml` or `"scripts"` to root `package.json`.
+- **Single automation entrypoint:** `pixi.toml` defines **only** the `tools` task (`bun x --bun --no-install tasknest`), enforced by `.alint/schemas/pixi-tasks.schema.json` via `alint`, and root `package.json` forbids `"scripts"` via `.alint/schemas/root-package.schema.json`. Run **all** repository and coding-agent automation through `pixi run tools ...` (`pixi run tools ls`). Never add extra `[tasks]`/`[feature.*.tasks]` to `pixi.toml` or `"scripts"` to root `package.json`.
 - **Policy schemas & policy tests:** Structural invariants for manifests, configs, `skills-lock.json`, and release data are enforced offline by `alint` against 18 schemas under `.alint/schemas/*.schema.json` and regression-tested via `pixi run tools run testing test-policy` (8 declarative tests under `.alint/tests/` plus live checks against `.alint/schemas/`).
-- **Generated documentation & skill catalog:** Edit templates under `templates/` (`README.md.j2`, `AGENTS.md.j2`, `github/ISSUE_TEMPLATE/*.j2`, `github/PULL_REQUEST_TEMPLATE.md.j2`) and run `pixi run tools run documentation sync --write` instead of editing generated outputs directly. Regenerate `.agents/skills/project-tools/SKILL.md` with `pixi run tools skill --write` whenever tasks change.
-- **Coding-agent skills:** 7 installed project skills live in `.agents/skills/` (tracked in `skills-lock.json`): `bdd-scenarios`, `clean-code-principles`, `grill-me`, `project-tools`, `refactor`, `tasknest`, `tdd`. Manage or restore skills via `pixi run tools run workflow skills -- -- list` or `pixi run tools run workflow skills -- -- install`.
+- **Generated documentation:** Edit templates under `templates/` (`README.md.j2`, `AGENTS.md.j2`, `github/ISSUE_TEMPLATE/*.j2`, `github/PULL_REQUEST_TEMPLATE.md.j2`) and run `pixi run tools run documentation sync --write` instead of editing generated outputs directly.
+- **Coding-agent skills:** 6 installed project skills live in `.agents/skills/` (tracked in `skills-lock.json`): `bdd-scenarios`, `clean-code-principles`, `grill-me`, `refactor`, `tasknest`, `tdd`. Manage or restore skills via `pixi run tools run workflow skills -- -- list` or `pixi run tools run workflow skills -- -- install`.
 - **Contracts stay dependency-free:** `rust/crates/contracts` and `packages/contracts` must not depend on services, application logic, infrastructure, UI, or platform SDKs.
 - **Services stay transport-independent:** Business logic and validation belong once in `rust/crates/services` (`ProductServices`). The transport adapters (`rust/adapters/axum`, `rust/adapters/tauri`, `rust/adapters/wasm`) only translate protocol payloads.
 - **Infrastructure stays injectable:** Every package under `packages/infrastructure/` accepts its low-level runtime primitive (`fetch`, `invoke`, `sendMessage`, lazy WASM loader) as a parameter and must never import sibling infrastructure, `@product/application`, `@product/ui`, or `@product/features`.
@@ -33,7 +33,6 @@ subsequent repository automation runs through `pixi run tools`:
 ```bash
 pixi run tools ls                          # List all root, app, and package Tasknest tasks
 pixi run tools check                       # Validate Tasknest graph, descriptions, and marks
-pixi run tools skill --check               # Verify .agents/skills/project-tools/SKILL.md is current
 pixi run tools run documentation sync               # Verify README.md and AGENTS.md match templates/*.j2
 pixi run -e default bun install --frozen-lockfile # Bootstrap Bun dependencies
 pixi run tools run setup install                 # Re-run Bun dependency installation after bootstrap

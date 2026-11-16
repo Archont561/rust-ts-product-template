@@ -56,10 +56,9 @@ jobs:
             echo "version=${PKG_VERSION}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run preflight policy, skill & TypeScript test gates
+      - name: Run preflight policy & TypeScript test gates
         run: |
           pixi run tools check
-          pixi run tools skill --check
           pixi run tools run quality lint-repo
           pixi run tools run quality lint-ts
           pixi run tools run testing test-ts
