@@ -27,6 +27,10 @@ actionlint = "*"
 convco = "*"
 lychee = "*"
 taplo = "*"
+# conda-forge ships the real `vale` binary. The PyPI `vale` distribution is only a
+# downloader that fetches that binary from a release CDN on first run, which fails in
+# airgapped/offline `pixi` environments (and pins as 3.27.0.0 instead of 3.27.0).
+vale = "=3.27.0"
 
 [feature.lint.target.unix.dependencies]
 lefthook = "*"
@@ -34,7 +38,6 @@ shellcheck = "*"
 
 [feature.lint.pypi-dependencies]
 alint = "==0.22.1"
-vale = "==3.27.0.0"
 gherlint = "==0.5.0"
 rumdl = "==0.3.4"
 
