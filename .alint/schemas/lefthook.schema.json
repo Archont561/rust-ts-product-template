@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://product.local/schemas/lefthook.schema.json",
   "title": "Lefthook Git Hooks Policy",
-  "description": "Enforces pre-commit and pre-push hook groups in lefthook.yml where every hook job delegates through `pixi run [-e <env>] tools`.",
+  "description": "Enforces commit-msg, pre-commit, and pre-push hook groups in lefthook.yml where every hook job delegates through `pixi run [-e <env>] tools`.",
   "type": "object",
-  "required": ["pre-commit", "pre-push"],
+  "required": ["commit-msg", "pre-commit", "pre-push"],
   "properties": {
     "pre-commit": {
       "$ref": "#/$defs/hookStage"

@@ -78,7 +78,7 @@ Every runtime composes the same **transport-independent services** and **injecta
 | [`pixi.toml`](pixi.toml), [`pixi.lock`](pixi.lock)                                                       | Reproducible cross-platform toolchain (`default`, `js`, `lint`, `docs`, `rust`, `full` environments)                                                                                                    |
 | [`package.json`](package.json), [`tsconfig.base.json`](tsconfig.base.json)                               | Bun workspace root and strict TypeScript config (`customConditions: ["source"]`)                                                                                                                        |
 | [`biome.json`](biome.json), [`.alint.yml`](.alint.yml)                                                   | Formatting, TS/Svelte linting, and bundled + schema + boundary repository rules                                                                                                                         |
-| [`.alint/`](.alint/schemas/pixi-tasks.schema.json) (`schemas/`, `tests/`)                                | 18 policy JSON Schemas enforced by `alint` + 10 declarative `alint test` specs and real-schema regression checks (`pixi run tools run testing test-policy`)                |
+| [`.alint/`](.alint/schemas/pixi-tasks.schema.json) (`schemas/`, `tests/`)                                | 20 policy JSON Schemas enforced by `alint` + 10 declarative `alint test` specs and real-schema regression checks (`pixi run tools run testing test-policy`)                |
 | [`templates/`](templates/README.md.j2)                                                                   | Jinja templates for root `README.md`, `AGENTS.md`, `.github/` issue & PR templates, and unit README scaffolding (`crate`, `package`, `app`) rendered via `pixi run tools run documentation sync`                  |
 | [`pixi-sandbox.toml`](pixi-sandbox.toml), [`scripts/restore.sh`](scripts/restore.sh)                     | Airlocked Linux offline development bundle (`default`–`full` + vendored Cargo crates) and restore launcher                                                                                              |
 | [`.github/`](.github/workflows/ci.yml), [`renovate.json`](renovate.json), [`lefthook.yml`](lefthook.yml) | SHA-pinned CI/Pages/Release/Security/`pixi-sandbox` workflows, reusable `.github/actions/setup*` actions, Renovate config, and lefthook `pre-commit`/`pre-push` hooks                                   |
@@ -115,6 +115,8 @@ pixi run tools run testing test-ts
 pixi run tools run testing test-ts --coverage
 pixi run tools run quality lint-ts
 pixi run tools run quality lint-md
+pixi run tools run quality lint-actions
+pixi run tools run quality lint-toml
 pixi run tools run quality lint-repo
 pixi run tools run testing test-policy
 pixi run tools run documentation sync
@@ -123,6 +125,7 @@ pixi run tools run quality links
 pixi run tools run quality lint-prose
 
 # Run Rust checks, tests, and supply-chain verification
+pixi run -e rust tools run quality lint-rust-format
 pixi run -e rust tools run quality lint-rust
 pixi run -e rust tools run testing test-rust
 pixi run -e rust tools run security deny
@@ -159,7 +162,7 @@ pixi run tools run docs dev             # Run Fumadocs showcase & docs site
 2. **Add domain & service operations:** Define request/response contracts in `rust/crates/contracts` and `packages/contracts`, implement logic once in `rust/crates/services`, and expose it through `rust/adapters/*` and `packages/application`.
 3. **Build shared Svelte 5 screens:** Place design primitives in `packages/frontend/ui` and reusable product flows in `packages/frontend/features`, injecting `ProductClient` from each app shell.
 4. **Update templated docs cleanly:** Edit `templates/README.md.j2` or `templates/AGENTS.md.j2` and run `pixi run tools run documentation sync --write`; scaffold new unit READMEs with `pixi run tools run documentation sync --scaffold crate|package|app --name <name> --output <path>`.
-5. **Keep guardrails green:** Run `pixi run tools run quality lint-repo`, `pixi run tools run testing test-policy`, `pixi run tools run quality lint-ts`, `pixi run tools run quality lint-md`, and `pixi run -e rust tools run quality lint-rust` before opening a PR so architectural boundaries stay enforced as the product grows.
+5. **Keep guardrails green:** Run `pixi run tools run quality lint-repo`, `pixi run tools run testing test-policy`, `pixi run tools run quality lint-ts`, `pixi run tools run quality lint-md`, `pixi run tools run quality lint-actions`, `pixi run tools run quality lint-toml`, and `pixi run -e rust tools run quality lint-rust-format` followed by `pixi run -e rust tools run quality lint-rust` before opening a PR so architectural boundaries stay enforced as the product grows.
 
 ---
 

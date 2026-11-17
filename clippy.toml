@@ -4,7 +4,16 @@ allow-unwrap-in-tests = true
 allow-expect-in-tests = true
 allow-indexing-slicing-in-tests = true
 allow-dbg-in-tests = true
-doc-valid-idents = ["OpenAPI", "SQLite", "WebSocket", "WebAssembly", "TypeScript", "JavaScript", "Fumadocs", ".."]
+doc-valid-idents = [
+  "OpenAPI",
+  "SQLite",
+  "WebSocket",
+  "WebAssembly",
+  "TypeScript",
+  "JavaScript",
+  "Fumadocs",
+  "..",
+]
 
 disallowed-methods = [
   { path = "std::time::SystemTime::now", reason = "Inject a Clock trait so core crates stay deterministic and testable" },

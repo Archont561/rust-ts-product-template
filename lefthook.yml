@@ -2,9 +2,22 @@
 # Install locally with: `pixi run tools run workflow hooks`
 # Validate syntax with: `pixi run tools run workflow hooks --action validate`
 
+commit-msg:
+  jobs:
+    - name: convco
+      run: pixi run tools run workflow commit-msg {1}
+
 pre-commit:
   parallel: true
   jobs:
+    - name: lint-actions
+      glob: "{.github/workflows/*.yml,.github/actions/**}"
+      run: pixi run tools run quality lint-actions
+
+    - name: lint-toml
+      glob: "**/*.toml"
+      run: pixi run tools run quality lint-toml
+
     - name: lint-ts
       glob: "**/*.{ts,tsx,js,jsx,mjs,cjs,svelte,json,jsonc,css}"
       run: pixi run tools run quality lint-ts
@@ -56,6 +69,8 @@ pre-push:
       group:
         piped: true
         jobs:
+          - name: lint-rust-format
+            run: pixi run -e rust tools run quality lint-rust-format
           - name: lint-rust
             run: pixi run -e rust tools run quality lint-rust
           - name: test-rust

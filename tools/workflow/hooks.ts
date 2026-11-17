@@ -3,7 +3,8 @@ import { type ToolContext, tool } from "@archont561/tasknest";
 export const hooks = tool(
   {
     name: "hooks",
-    description: "Install, uninstall, validate, or run Lefthook Git hooks (pre-commit / pre-push).",
+    description:
+      "Install, uninstall, validate, or run Lefthook Git hooks (commit-msg / pre-commit / pre-push).",
     marks: ["setup", "workflow"],
     requires: ["lefthook"],
     options: [
@@ -17,7 +18,7 @@ export const hooks = tool(
       {
         name: "hook",
         type: "string",
-        choices: ["pre-commit", "pre-push"],
+        choices: ["commit-msg", "pre-commit", "pre-push"],
         default: "pre-commit",
         description: "Hook name used when `--action run` is selected.",
       },
