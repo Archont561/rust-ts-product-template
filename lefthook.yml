@@ -26,6 +26,10 @@ pre-commit:
       glob: "**/*.{md,mdx}"
       run: pixi run tools run quality lint-md
 
+    - name: check-layout
+      glob: ".github/**"
+      run: pixi run tools run ci check-layout
+
     - name: lint-repo
       run: pixi run tools run quality lint-repo
 

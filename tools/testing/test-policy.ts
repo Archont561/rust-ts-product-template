@@ -52,7 +52,7 @@ const REAL_SCHEMA_CASES: SchemaMutationCase[] = [
   },
   {
     ruleId: "schema-github-change-filters",
-    targetFile: ".github/scripts/filters.json",
+    targetFile: "tools/ci/filters.json",
     mutate: (content) => content.replace('"rust": [', '"rust": [],'),
   },
 ];
