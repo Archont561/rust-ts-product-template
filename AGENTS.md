@@ -52,13 +52,17 @@ pixi run -e rust tools run security deny            # Offline cargo-deny bans/li
 pixi run -e rust tools run security audit           # RustSec cargo-audit check
 ```
 
+`quality lint-prose` runs Vale over `README.md`, `AGENTS.md`, and `backlog/README.md`; every entry of `.vale/styles/config/vocabularies/Product/accept.txt` must keep its exact capitalization, so never use one of those names as an ordinary English word.
+
+`quality lint-prose` runs Vale over `README.md`, `AGENTS.md`, and `backlog/README.md`, and every entry of `.vale/styles/config/vocabularies/Product/accept.txt` must keep its exact capitalization: those names are proper nouns, so never use one as an ordinary English word.
+
 ## Commit Messages
 
 Every commit message is validated against [Conventional Commits](https://www.conventionalcommits.org/) by the lefthook `commit-msg` hook, which runs `pixi run tools run workflow commit-msg --message-file <path>` backed by `convco` and `.versionrc`:
 
 - Write `<type>(<scope>): <description>` using a type declared in `.versionrc` — `feat`, `fix`, `perf`, `refactor`, `revert`, plus the hidden `docs`, `test`, `build`, `ci`, `chore`, and `style` types.
 - Keep the subject imperative and under 72 characters, and explain the reason for the change in the body.
-- Only `feat`, `fix`, `perf`, `refactor`, and `revert` reach the generated release changelog, so pick the type that matches the user-visible effect.
+- Only `feat`, `fix`, `perf`, `refactor`, and `revert` reach the generated release changelog, so pick the type that matches the user-visible impact of the change.
 - Re-check a message that already exists: `pixi run tools run workflow commit-msg --message-file .git/COMMIT_EDITMSG`.
 
 ## Pull Requests
