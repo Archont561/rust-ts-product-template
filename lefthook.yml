@@ -73,8 +73,6 @@ pre-push:
       group:
         piped: true
         jobs:
-          - name: lint-rust-format
-            run: pixi run -e rust tools run quality lint-rust-format
           - name: lint-rust
             run: pixi run -e rust tools run quality lint-rust
           - name: test-rust

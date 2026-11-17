@@ -231,7 +231,8 @@ jobs:
         run: |
           set -euo pipefail
           cd release-artifacts
-          find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+          find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.tmp
+          mv SHA256SUMS.tmp SHA256SUMS
 
       - name: Publish GitHub Release with checksums
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4

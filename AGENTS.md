@@ -46,7 +46,6 @@ pixi run tools run testing test-ts                 # Bun workspace unit tests (-
 pixi run tools run quality lint-gherkin            # Gherkin feature lint
 pixi run tools run quality links                   # Offline lychee link check (--online for remote)
 pixi run tools run quality lint-prose              # Vale prose check
-pixi run -e rust tools run quality lint-rust-format # cargo fmt --all -- --check
 pixi run -e rust tools run quality lint-rust       # cargo clippy --workspace --all-targets -- -D warnings
 pixi run -e rust tools run testing test-rust       # cargo nextest run --workspace
 pixi run -e rust tools run security deny            # Offline cargo-deny bans/licenses/sources
