@@ -17,11 +17,6 @@ namespace = "web"
 project_root = "apps/web"
 
 [[discovery.roots]]
-path = "apps/desktop/tools"
-namespace = "desktop"
-project_root = "apps/desktop"
-
-[[discovery.roots]]
 path = "apps/mobile/tools"
 namespace = "mobile"
 project_root = "apps/mobile"
@@ -32,14 +27,27 @@ namespace = "ext"
 project_root = "apps/extension"
 
 [[discovery.roots]]
-path = "apps/docs/tools"
-namespace = "docs"
-project_root = "apps/docs"
-
-[[discovery.roots]]
 path = "apps/worker/tools"
 namespace = "worker"
 project_root = "apps/worker"
+
+# Manifest-backed app tasks: `dev`/`build` are already declared as package.json scripts, so
+# Tasknest discovers them instead of a hand-written wrapper. Task metadata (description, marks,
+# persistent, requires) lives in each app's `tasknest.tasks` table.
+[[discovery.manifests]]
+path = "apps/desktop"
+runner = "bun"
+
+[[discovery.manifests]]
+path = "apps/docs"
+runner = "bun"
+
+[[discovery.manifests]]
+path = "apps/worker"
+runner = "bun"
+# `deploy` keeps its typed `--env` flag (apps/worker/tools/deploy.ts); `typecheck` and `test` run
+# through `pixi run tools run --each typecheck` and the package-scoped selectors instead.
+exclude_scripts = ["deploy", "test", "typecheck"]
 
 # Manifest-backed package scripts (enables `pixi run tools run --each typecheck`,
 # `pixi run tools run -p pkg.contracts test`, etc.)

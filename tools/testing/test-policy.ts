@@ -55,6 +55,11 @@ const REAL_SCHEMA_CASES: SchemaMutationCase[] = [
     targetFile: "tools/ci/filters.json",
     mutate: (content) => content.replace('"rust": [', '"rust": [],'),
   },
+  {
+    ruleId: "schema-app-package",
+    targetFile: "apps/desktop/package.json",
+    mutate: (content) => content.replace('"persistent": true', '"persistent": "yes"'),
+  },
 ];
 
 function verifyRealSchemas(repoRoot: string): void {

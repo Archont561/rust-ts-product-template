@@ -9,6 +9,17 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },
+  "tasknest": {
+    "tasks": {
+      "dev": {
+        "description": "Run the Cloudflare Worker locally with Wrangler (apps/worker).",
+        "marks": [
+          "dev"
+        ],
+        "persistent": true
+      }
+    }
+  },
   "dependencies": {
     "@product/application": "workspace:*",
     "@product/contracts": "workspace:*",

@@ -10,4 +10,4 @@ Cloudflare Worker edge gateway (`workerd` / Wrangler) combining:
 
 - Worker bindings, compatibility flags, KV namespaces, and Hyperdrive config live in [`wrangler.jsonc`](wrangler.jsonc).
 - Local multi-service development (Worker + Axum Alpine binary + Postgres / Neon Local) runs via root [`docker-compose.yml`](../../docker-compose.yml) (`docker compose --profile local --profile edge up --build`).
-- Scoped Tasknest tasks live in `apps/worker/tools/` (`worker dev`, `worker deploy`).
+- `worker dev` is manifest-backed from the `scripts` and `tasknest.tasks` metadata in `apps/worker/package.json`; `worker deploy` keeps a TypeScript tool in `apps/worker/tools/deploy.ts` because it needs a typed `--env` flag.

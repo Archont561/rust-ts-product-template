@@ -7,6 +7,27 @@
     "dev": "tauri dev",
     "build": "tauri build"
   },
+  "tasknest": {
+    "tasks": {
+      "dev": {
+        "description": "Launch the Tauri v2 desktop app in dev mode (apps/desktop).",
+        "marks": [
+          "dev"
+        ],
+        "persistent": true
+      },
+      "build": {
+        "description": "Bundle Tauri v2 desktop installers for the host platform.",
+        "marks": [
+          "build",
+          "release"
+        ],
+        "requires": [
+          "bun"
+        ]
+      }
+    }
+  },
   "dependencies": {
     "@product/application": "workspace:*",
     "@product/contracts": "workspace:*",

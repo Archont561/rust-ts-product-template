@@ -7,6 +7,27 @@
     "dev": "next dev",
     "build": "next build"
   },
+  "tasknest": {
+    "tasks": {
+      "dev": {
+        "description": "Run the Fumadocs showcase and documentation site (apps/docs).",
+        "marks": [
+          "dev"
+        ],
+        "persistent": true
+      },
+      "build": {
+        "description": "Build the static Fumadocs showcase and documentation site into apps/docs/out.",
+        "marks": [
+          "build",
+          "docs"
+        ],
+        "requires": [
+          "bun"
+        ]
+      }
+    }
+  },
   "dependencies": {
     "fumadocs-mdx": "^15.6.2",
     "fumadocs-ui": "^16.19.3",

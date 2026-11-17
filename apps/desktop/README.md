@@ -17,6 +17,6 @@ Thin **Tauri v2** native desktop application shell targeting **Linux, macOS, and
 
 ## Notes
 
-- Scoped Tasknest tasks live in `apps/desktop/tools/` (`namespace = "desktop"`, `project_root = "apps/desktop"`).
+- Tasknest tasks are manifest-backed: `desktop dev` and `desktop build` are autodiscovered from the `scripts` and `tasknest.tasks` metadata in `apps/desktop/package.json` (`[[discovery.manifests]]` in `tasknest.toml`), so no wrapper module is needed.
 - CI environment bootstrapping for Linux/macOS/Windows lives in `.github/actions/setup-tauri/action.yml`.
 - Release installers (`.dmg`, `.AppImage`/`.deb`, `.msi`/`.exe`) are published on `v*` tags and linked from `apps/docs` downloads.
