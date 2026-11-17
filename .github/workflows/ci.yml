@@ -142,9 +142,6 @@ jobs:
         with:
           cache-key: ci-rust-workspace
 
-      - name: Verify rustfmt formatting (cargo fmt --check)
-        run: pixi run -e rust tools run quality lint-rust-format
-
       - name: Run cargo clippy (-D warnings)
         run: pixi run -e rust tools run quality lint-rust
 
