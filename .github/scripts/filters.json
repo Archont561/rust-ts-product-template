@@ -1,0 +1,49 @@
+{
+  "ci": {
+    "ts": [
+      "packages/**",
+      "apps/desktop/**",
+      "apps/extension/**",
+      "apps/mobile/**",
+      "apps/worker/**",
+      "tools/**",
+      ".github/actions/**",
+      ".github/workflows/**",
+      "biome.json",
+      "bun.lock",
+      "bunfig.toml",
+      "package.json",
+      "tsconfig.base.json",
+      "pixi.toml",
+      "pixi.lock"
+    ],
+    "rust": [
+      "rust/**",
+      "apps/web/**",
+      "apps/desktop/src-tauri/**",
+      "apps/mobile/src-tauri/**",
+      "tools/**",
+      ".cargo/**",
+      ".github/actions/**",
+      ".github/workflows/**",
+      "Cargo.toml",
+      "Cargo.lock",
+      "clippy.toml",
+      "deny.toml",
+      "pixi.toml",
+      "pixi.lock"
+    ],
+    "web": [
+      "apps/web/**",
+      "rust/**",
+      "tools/**",
+      ".github/actions/**",
+      ".github/workflows/**",
+      "Cargo.toml",
+      "Cargo.lock",
+      ".dockerignore",
+      "pixi.toml",
+      "pixi.lock"
+    ]
+  }
+}

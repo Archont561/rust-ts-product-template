@@ -45,6 +45,16 @@ const REAL_SCHEMA_CASES: SchemaMutationCase[] = [
     targetFile: ".github/ISSUE_TEMPLATE/bug_report.yml",
     mutate: (content) => content.replace("type: dropdown", "type: invalid_widget"),
   },
+  {
+    ruleId: "schema-codecov-config",
+    targetFile: ".codecov.yml",
+    mutate: (content) => content.replace("flags: [rust]", "flags: []"),
+  },
+  {
+    ruleId: "schema-github-change-filters",
+    targetFile: ".github/scripts/filters.json",
+    mutate: (content) => content.replace('"rust": [', '"rust": [],'),
+  },
 ];
 
 function verifyRealSchemas(repoRoot: string): void {

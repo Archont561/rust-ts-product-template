@@ -27,8 +27,9 @@ Run checks through the single `pixi run tools` entrypoint before requesting revi
 - [ ] `pixi run tools run documentation sync` (regenerate with `--write` if templates or counts changed)
 - [ ] `pixi run tools run quality lint-repo` and `pixi run tools run testing test-policy`
 - [ ] `pixi run tools run quality lint-ts` and `pixi run tools run quality lint-md`
+- [ ] `pixi run tools run quality lint-actions` and `pixi run tools run quality lint-toml` (when workflows or TOML changed)
 - [ ] `pixi run tools run --each typecheck` and `pixi run tools run testing test-ts`
-- [ ] `pixi run -e rust tools run quality lint-rust` and `pixi run -e rust tools run testing test-rust` (when Rust changed)
+- [ ] `pixi run -e rust tools run quality lint-rust-format`, `pixi run -e rust tools run quality lint-rust`, and `pixi run -e rust tools run testing test-rust` (when Rust changed)
 - [ ] `pixi run tools run quality links` and `pixi run tools run quality lint-prose` (when docs changed)
 
 ## Architecture Guardrails
@@ -37,3 +38,4 @@ Run checks through the single `pixi run tools` entrypoint before requesting revi
 - [ ] Services (`rust/crates/services`) remain transport-independent; adapters stay thin.
 - [ ] TypeScript infrastructure (`packages/infrastructure/*`) remains injectable.
 - [ ] No extra tasks were added to `pixi.toml` or `"scripts"` to root `package.json`.
+- [ ] Every commit message in this branch follows Conventional Commits as declared in `.versionrc`.

@@ -30,22 +30,34 @@ pixi run tools check                       # Validate Tasknest graph, descriptio
 pixi run tools run documentation sync               # Verify README.md and AGENTS.md match templates/*.j2
 pixi run -e default bun install --frozen-lockfile # Bootstrap Bun dependencies
 pixi run tools run setup install                 # Re-run Bun dependency installation after bootstrap
-pixi run tools run workflow hooks                   # Install lefthook pre-commit & pre-push Git hooks
+pixi run tools run workflow hooks                   # Install lefthook commit-msg, pre-commit & pre-push Git hooks
 pixi run tools run workflow hooks --action validate # Validate lefthook.yml syntax
 pixi run tools run --each typecheck        # Type-check all {{ ts_package_count }} workspace packages via Tasknest 0.4
 pixi run tools run quality lint-repo               # alint (presets, {{ schema_count }} JSON Schemas, architectural boundaries)
 pixi run tools run testing test-policy             # alint test .alint/tests + live real-schema regression checks
 pixi run tools run quality lint-ts                 # Biome formatting & scoped boundary lint
 pixi run tools run quality lint-md                 # rumdl Markdown & MDX lint (--fix to auto-fix)
+pixi run tools run quality lint-actions            # actionlint GitHub Actions workflows
+pixi run tools run quality lint-toml               # taplo TOML formatting check (--fix to rewrite)
 pixi run tools run testing test-ts                 # Bun workspace unit tests (--coverage for LCOV)
 pixi run tools run quality lint-gherkin            # Gherkin feature lint
 pixi run tools run quality links                   # Offline lychee link check (--online for remote)
 pixi run tools run quality lint-prose              # Vale prose check
+pixi run -e rust tools run quality lint-rust-format # cargo fmt --all -- --check
 pixi run -e rust tools run quality lint-rust       # cargo clippy --workspace --all-targets -- -D warnings
 pixi run -e rust tools run testing test-rust       # cargo nextest run --workspace
 pixi run -e rust tools run security deny            # Offline cargo-deny bans/licenses/sources
 pixi run -e rust tools run security audit           # RustSec cargo-audit check
 ```
+
+## Commit Messages
+
+Every commit message is validated against [Conventional Commits](https://www.conventionalcommits.org/) by the lefthook `commit-msg` hook, which runs `pixi run tools run workflow commit-msg --message-file <path>` backed by `convco` and `.versionrc`:
+
+- Write `<type>(<scope>): <description>` using a type declared in `.versionrc` — `feat`, `fix`, `perf`, `refactor`, `revert`, plus the hidden `docs`, `test`, `build`, `ci`, `chore`, and `style` types.
+- Keep the subject imperative and under 72 characters, and explain the reason for the change in the body.
+- Only `feat`, `fix`, `perf`, `refactor`, and `revert` reach the generated release changelog, so pick the type that matches the user-visible effect.
+- Re-check a message that already exists: `pixi run tools run workflow commit-msg --message-file .git/COMMIT_EDITMSG`.
 
 ## Pull Requests
 

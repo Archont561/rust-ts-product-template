@@ -115,6 +115,8 @@ pixi run tools run testing test-ts
 pixi run tools run testing test-ts --coverage
 pixi run tools run quality lint-ts
 pixi run tools run quality lint-md
+pixi run tools run quality lint-actions
+pixi run tools run quality lint-toml
 pixi run tools run quality lint-repo
 pixi run tools run testing test-policy
 pixi run tools run documentation sync
@@ -123,6 +125,7 @@ pixi run tools run quality links
 pixi run tools run quality lint-prose
 
 # Run Rust checks, tests, and supply-chain verification
+pixi run -e rust tools run quality lint-rust-format
 pixi run -e rust tools run quality lint-rust
 pixi run -e rust tools run testing test-rust
 pixi run -e rust tools run security deny
@@ -159,7 +162,7 @@ pixi run tools run docs dev             # Run Fumadocs showcase & docs site
 2. **Add domain & service operations:** Define request/response contracts in `rust/crates/contracts` and `packages/contracts`, implement logic once in `rust/crates/services`, and expose it through `rust/adapters/*` and `packages/application`.
 3. **Build shared Svelte 5 screens:** Place design primitives in `packages/frontend/ui` and reusable product flows in `packages/frontend/features`, injecting `ProductClient` from each app shell.
 4. **Update templated docs cleanly:** Edit `templates/README.md.j2` or `templates/AGENTS.md.j2` and run `pixi run tools run documentation sync --write`; scaffold new unit READMEs with `pixi run tools run documentation sync --scaffold crate|package|app --name <name> --output <path>`.
-5. **Keep guardrails green:** Run `pixi run tools run quality lint-repo`, `pixi run tools run testing test-policy`, `pixi run tools run quality lint-ts`, `pixi run tools run quality lint-md`, and `pixi run -e rust tools run quality lint-rust` before opening a PR so architectural boundaries stay enforced as the product grows.
+5. **Keep guardrails green:** Run `pixi run tools run quality lint-repo`, `pixi run tools run testing test-policy`, `pixi run tools run quality lint-ts`, `pixi run tools run quality lint-md`, `pixi run tools run quality lint-actions`, `pixi run tools run quality lint-toml`, and `pixi run -e rust tools run quality lint-rust-format` followed by `pixi run -e rust tools run quality lint-rust` before opening a PR so architectural boundaries stay enforced as the product grows.
 
 ---
 

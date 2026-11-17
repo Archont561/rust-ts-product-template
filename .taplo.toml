@@ -1,0 +1,7 @@
+# Taplo TOML formatter configuration — consumed by `pixi run tools run quality lint-toml`
+# (`taplo fmt --check`), the lefthook pre-commit job, and the CI `repo-and-docs` job.
+exclude = [".pixi/**", "**/node_modules/**", "**/target/**", "**/dist/**", "**/coverage/**"]
+
+[formatting]
+column_width = 100
+indent_string = "  "

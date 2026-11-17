@@ -7,7 +7,7 @@ This repository is a multi-platform **Rust + TypeScript (Svelte 5)** software pr
 ## Architecture & Boundaries
 
 - **Single automation entrypoint:** `pixi.toml` defines **only** the `tools` task (`bun x --bun --no-install tasknest`), enforced by `.alint/schemas/pixi-tasks.schema.json` via `alint`, and root `package.json` forbids `"scripts"` via `.alint/schemas/root-package.schema.json`. Run **all** repository and coding-agent automation through `pixi run tools ...` (`pixi run tools ls`). Never add extra `[tasks]`/`[feature.*.tasks]` to `pixi.toml` or `"scripts"` to root `package.json`.
-- **Policy schemas & policy tests:** Structural invariants for manifests, configs, `skills-lock.json`, and release data are enforced offline by `alint` against 18 schemas under `.alint/schemas/*.schema.json` and regression-tested via `pixi run tools run testing test-policy` (10 declarative tests under `.alint/tests/` plus live checks against `.alint/schemas/`).
+- **Policy schemas & policy tests:** Structural invariants for manifests, configs, `skills-lock.json`, and release data are enforced offline by `alint` against 20 schemas under `.alint/schemas/*.schema.json` and regression-tested via `pixi run tools run testing test-policy` (10 declarative tests under `.alint/tests/` plus live checks against `.alint/schemas/`).
 - **Generated documentation:** Edit templates under `templates/` (`README.md.j2`, `AGENTS.md.j2`, `github/ISSUE_TEMPLATE/*.j2`, `github/PULL_REQUEST_TEMPLATE.md.j2`) and run `pixi run tools run documentation sync --write` instead of editing generated outputs directly. Every generated file must open with a one-line provenance comment naming its own source template: an HTML comment in Markdown (`<!-- generated from templates/<name>.j2 ... -->`) and a `#` comment in the GitHub Issue Forms YAML, where an HTML comment is a parse error. The six `require-*-generated-marker` alint rules pin that first line per file, while `pixi run tools run documentation sync` fails closed on any content drift.
 - **Coding-agent skills:** 6 installed project skills live in `.agents/skills/` (tracked in `skills-lock.json`): `bdd-scenarios`, `clean-code-principles`, `grill-me`, `refactor`, `tasknest`, `tdd`. Manage or restore skills via `pixi run tools run workflow skills -- -- list` or `pixi run tools run workflow skills -- -- install`.
 - **Contracts stay dependency-free:** `rust/crates/contracts` and `packages/contracts` must not depend on services, application logic, infrastructure, UI, or platform SDKs.
@@ -30,22 +30,34 @@ pixi run tools check                       # Validate Tasknest graph, descriptio
 pixi run tools run documentation sync               # Verify README.md and AGENTS.md match templates/*.j2
 pixi run -e default bun install --frozen-lockfile # Bootstrap Bun dependencies
 pixi run tools run setup install                 # Re-run Bun dependency installation after bootstrap
-pixi run tools run workflow hooks                   # Install lefthook pre-commit & pre-push Git hooks
+pixi run tools run workflow hooks                   # Install lefthook commit-msg, pre-commit & pre-push Git hooks
 pixi run tools run workflow hooks --action validate # Validate lefthook.yml syntax
 pixi run tools run --each typecheck        # Type-check all 13 workspace packages via Tasknest 0.4
-pixi run tools run quality lint-repo               # alint (presets, 18 JSON Schemas, architectural boundaries)
+pixi run tools run quality lint-repo               # alint (presets, 20 JSON Schemas, architectural boundaries)
 pixi run tools run testing test-policy             # alint test .alint/tests + live real-schema regression checks
 pixi run tools run quality lint-ts                 # Biome formatting & scoped boundary lint
 pixi run tools run quality lint-md                 # rumdl Markdown & MDX lint (--fix to auto-fix)
+pixi run tools run quality lint-actions            # actionlint GitHub Actions workflows
+pixi run tools run quality lint-toml               # taplo TOML formatting check (--fix to rewrite)
 pixi run tools run testing test-ts                 # Bun workspace unit tests (--coverage for LCOV)
 pixi run tools run quality lint-gherkin            # Gherkin feature lint
 pixi run tools run quality links                   # Offline lychee link check (--online for remote)
 pixi run tools run quality lint-prose              # Vale prose check
+pixi run -e rust tools run quality lint-rust-format # cargo fmt --all -- --check
 pixi run -e rust tools run quality lint-rust       # cargo clippy --workspace --all-targets -- -D warnings
 pixi run -e rust tools run testing test-rust       # cargo nextest run --workspace
 pixi run -e rust tools run security deny            # Offline cargo-deny bans/licenses/sources
 pixi run -e rust tools run security audit           # RustSec cargo-audit check
 ```
+
+## Commit Messages
+
+Every commit message is validated against [Conventional Commits](https://www.conventionalcommits.org/) by the lefthook `commit-msg` hook, which runs `pixi run tools run workflow commit-msg --message-file <path>` backed by `convco` and `.versionrc`:
+
+- Write `<type>(<scope>): <description>` using a type declared in `.versionrc` — `feat`, `fix`, `perf`, `refactor`, `revert`, plus the hidden `docs`, `test`, `build`, `ci`, `chore`, and `style` types.
+- Keep the subject imperative and under 72 characters, and explain the reason for the change in the body.
+- Only `feat`, `fix`, `perf`, `refactor`, and `revert` reach the generated release changelog, so pick the type that matches the user-visible effect.
+- Re-check a message that already exists: `pixi run tools run workflow commit-msg --message-file .git/COMMIT_EDITMSG`.
 
 ## Pull Requests
 
