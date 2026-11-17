@@ -17,5 +17,5 @@
 ## Notes
 
 - Excluded from `.codecov.yml` coverage tracking (`apps/docs/**`).
-- Scoped Tasknest tasks live in `apps/docs/tools/` (`namespace = "docs"`, `project_root = "apps/docs"`).
+- Tasknest tasks are manifest-backed: `docs dev` and `docs build` are autodiscovered from the `scripts` and `tasknest.tasks` metadata in `apps/docs/package.json` (`[[discovery.manifests]]` in `tasknest.toml`), so no wrapper module is needed.
 - Deployed statically (GitHub Pages / Cloudflare Pages) when documentation changes or a new `v*` release cuts.

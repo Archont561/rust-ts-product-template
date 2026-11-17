@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://product.local/schemas/app-package.schema.json",
   "title": "Application Shell package.json Policy",
-  "description": "Enforces @product/app-* naming, privacy, ESM mode, non-empty scripts, workspace:* links to shared packages, and isolation from other @product/app-* packages.",
+  "description": "Enforces @product/app-* naming, privacy, ESM mode, non-empty scripts, workspace:* links to shared packages, isolation from other @product/app-* packages, and the shape of the optional `tasknest` manifest-task metadata that Tasknest autodiscovers.",
   "type": "object",
   "required": ["name", "version", "private", "type", "scripts"],
   "properties": {
@@ -33,9 +33,46 @@
     },
     "devDependencies": {
       "$ref": "#/$defs/appDepMap"
+    },
+    "tasknest": {
+      "type": "object",
+      "required": ["tasks"],
+      "additionalProperties": false,
+      "properties": {
+        "namespace": { "type": "string", "minLength": 1 },
+        "runner": { "type": "string", "minLength": 1 },
+        "tasks": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/tasknestTask" }
+        }
+      }
     }
   },
   "$defs": {
+    "tasknestTask": {
+      "type": "object",
+      "required": ["description", "marks"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "$ref": "#/$defs/stringList" },
+        "description": { "type": "string", "minLength": 1 },
+        "marks": { "$ref": "#/$defs/stringList" },
+        "requires": { "$ref": "#/$defs/stringList" },
+        "depends": { "$ref": "#/$defs/stringList" },
+        "inputs": { "$ref": "#/$defs/stringList" },
+        "outputs": { "$ref": "#/$defs/stringList" },
+        "env": { "$ref": "#/$defs/stringList" },
+        "resources": { "$ref": "#/$defs/stringList" },
+        "cache": { "type": "boolean" },
+        "persistent": { "type": "boolean" }
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
     "appDepMap": {
       "type": "object",
       "patternProperties": {

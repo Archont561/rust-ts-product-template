@@ -1,6 +1,6 @@
 ---
 name: tasknest
-description: "Author, validate, and execute repository automation with Tasknest 0.4.0 via the single `pixi run tools` entrypoint. Use when adding or modifying tasks in `tools/<group>/*.ts`, `apps/*/tools/*.ts`, or `tasknest.toml`, running `--each` / `-p` / `--mark` selectors."
+description: "Author, validate, and execute repository automation with Tasknest 0.4.0 via the single `pixi run tools` entrypoint. Use when adding or modifying tasks in `tools/<group>/*.ts`, `apps/*/tools/*.ts`, manifest `tasknest.tasks` metadata, or `tasknest.toml`, running `--each` / `-p` / `--mark` selectors."
 license: MIT
 ---
 
@@ -41,7 +41,7 @@ pixi run tools run workflow backlog -- -- task list --plain
 
 ## Authoring a New Task
 
-Create a TypeScript module under `tools/<group>/<name>.ts` (the directory becomes a CLI group such as `quality lint-ts`) or `apps/<app>/tools/<name>.ts` (namespaced under `apps/<app>` in `tasknest.toml`):
+Create a TypeScript module under `tools/<group>/<name>.ts` (the directory becomes a CLI group such as `quality lint-ts`) or `apps/<app>/tools/<name>.ts` (namespaced under `apps/<app>` in `tasknest.toml`). Skip the module when the task only forwards to a manifest script — see [Prefer Manifest Metadata Over Wrapper Modules](#prefer-manifest-metadata-over-wrapper-modules):
 
 ```ts
 import { type ToolContext, tool } from "@archont561/tasknest";
@@ -74,6 +74,33 @@ export const example = tool(
 
 - Use `process.stdout.write(...)` instead of `console.log(...)` (enforced by `alint`'s `agent-no-console-log` rule).
 - If a new mark is needed, register it with a description under `[marks]` in `tasknest.toml`.
+
+## Prefer Manifest Metadata Over Wrapper Modules
+
+If a task would only forward to a command a manifest already declares, do not write a `tool()`
+module — let Tasknest autodiscover it. A `[[discovery.manifests]]` entry turns every
+`package.json` script (and every `[tool.tasknest.tasks]` table in a `pyproject.toml`) into a task,
+and the metadata a wrapper would have carried lives next to the script:
+
+```json
+{
+  "scripts": { "dev": "next dev" },
+  "tasknest": {
+    "tasks": {
+      "dev": { "description": "Run the Fumadocs site.", "marks": ["dev"], "persistent": true }
+    }
+  }
+}
+```
+
+- The CLI path is `[namespace.]<manifest-dir-basename>.<script>`, so leave `namespace` out of the
+  `[[discovery.manifests]]` entry to get `docs.dev` instead of `docs.docs.dev`.
+- `description`, `marks`, `requires`, `depends`, `inputs`, `outputs`, `env`, `resources`, `cache`,
+  `persistent`, and a literal `cmd` argv are all read from that table; `cmd` declares a task with
+  no matching script. `.alint/schemas/app-package.schema.json` validates the shape.
+- Use `exclude_scripts` to keep a script out of discovery when its TypeScript tool stays.
+- Still write a `tool()` module when the task needs `options`, `positionals`, branching, or more
+  than one command — a manifest task runs exactly one fixed argv and accepts no flags.
 
 ## Post-Edit Verification Checklist
 
